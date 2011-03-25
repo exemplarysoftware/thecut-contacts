@@ -56,7 +56,8 @@ class OrganisationPersonInline(admin.TabularInline):
 class PersonAdmin(ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', ('first_name', 'last_name'),
-            'suffix', 'image', 'date_of_birth', 'biography', 'notes', 'tags']}),
+            'suffix', 'image', 'date_of_birth', 'biography', 'notes',
+            'tags']}),
         ('Publishing', {'fields': [('publish_at', 'is_enabled'),
             'expire_at', 'publish_by', 'is_featured',
             ('created_at', 'created_by'),
@@ -71,6 +72,8 @@ class PersonAdmin(ModelAdmin):
     inlines = [PersonOrganisationInline, NicknameInline, AddressInline,
         EmailInline, PhoneInline, InstantMessengerHandleInline,
         WebsiteInline]
+    search_fields = ['first_name', 'last_name', 'nicknames__value',
+        'emails__value', 'phones__value']
     
     def email(self, obj):
         email = obj.get_email()
@@ -107,6 +110,8 @@ class OrganisationAdmin(ModelAdmin):
     inlines = [NicknameInline, AddressInline, EmailInline, PhoneInline,
         InstantMessengerHandleInline, WebsiteInline,
         OrganisationPersonInline]
+    search_fields = ['name', 'abn', 'nicknames__value',
+        'emails__value', 'phones__value']
 
 admin.site.register(Organisation, OrganisationAdmin)
 

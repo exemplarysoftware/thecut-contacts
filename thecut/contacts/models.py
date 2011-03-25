@@ -173,16 +173,23 @@ class Person(Contact):
         verbose_name_plural = 'people'
     
     def __unicode__(self):
-        return self.name
+        return self.name or 'Unnamed'
     
     @property
     def name(self):
-        return '%s %s' %(self.first_name, self.last_name)
+        if self.first_name and self.last_name:
+            return ' '.join([self.first_name, self.last_name])
+        elif self.first_name or self.last_name:
+            return self.first_name or self.last_name
+        else:
+            return None
 
 
 class Organisation(Contact):
-    name = models.CharField(max_length=150, blank=True, null=True)
-    abn = models.CharField('ABN', max_length=11, blank=True, null=True)
+    name = models.CharField(max_length=150, db_index=True,
+        blank=True, null=True)
+    abn = models.CharField('ABN', max_length=11, db_index=True,
+        blank=True, null=True)
     
     objects = QuerySetManager()
     
