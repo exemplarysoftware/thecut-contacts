@@ -156,6 +156,8 @@ class PersonOrganisation(models.Model):
 
 
 class Person(Contact):
+    user = models.OneToOneField('auth.User', related_name='contact',
+        blank=True, null=True)
     title = models.CharField(max_length=15, blank=True, null=True)
     first_name = models.CharField(max_length=75, db_index=True,
         blank=True, null=True)

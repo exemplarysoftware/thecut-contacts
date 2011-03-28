@@ -11,20 +11,20 @@ class Migration(SchemaMigration):
         # Adding model 'Address'
         db.create_table('contacts_address', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Contact'])),
+            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='addresses', to=orm['contacts.Contact'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
             ('street', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('city', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
             ('state', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
             ('postcode', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=30, null=True, blank=True)),
-            ('country', self.gf('django_countries.fields.CountryField')(db_index=True, max_length=2, null=True, blank=True)),
+            ('country', self.gf('django_countries.fields.CountryField')(default='AU', max_length=2, null=True, db_index=True, blank=True)),
         ))
         db.send_create_signal('contacts', ['Address'])
 
         # Adding model 'Email'
         db.create_table('contacts_email', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Contact'])),
+            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='emails', to=orm['contacts.Contact'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
             ('value', self.gf('django.db.models.fields.EmailField')(db_index=True, max_length=75, null=True, blank=True)),
         ))
@@ -33,7 +33,7 @@ class Migration(SchemaMigration):
         # Adding model 'InstantMessengerHandle'
         db.create_table('contacts_instantmessengerhandle', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Contact'])),
+            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='instant_messenger_handles', to=orm['contacts.Contact'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
             ('value', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
             ('type', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
@@ -43,7 +43,7 @@ class Migration(SchemaMigration):
         # Adding model 'Nickname'
         db.create_table('contacts_nickname', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Contact'])),
+            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='nicknames', to=orm['contacts.Contact'])),
             ('value', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
         ))
         db.send_create_signal('contacts', ['Nickname'])
@@ -51,7 +51,7 @@ class Migration(SchemaMigration):
         # Adding model 'Phone'
         db.create_table('contacts_phone', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Contact'])),
+            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='phones', to=orm['contacts.Contact'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
             ('value', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
             ('type', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
@@ -61,7 +61,7 @@ class Migration(SchemaMigration):
         # Adding model 'Website'
         db.create_table('contacts_website', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Contact'])),
+            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='websites', to=orm['contacts.Contact'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
             ('value', self.gf('django.db.models.fields.URLField')(db_index=True, max_length=255, null=True, blank=True)),
         ))
@@ -99,6 +99,7 @@ class Migration(SchemaMigration):
         # Adding model 'Person'
         db.create_table('contacts_person', (
             ('contact_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['contacts.Contact'], unique=True, primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, null=True, blank=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=15, null=True, blank=True)),
             ('first_name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
             ('last_name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
@@ -110,8 +111,8 @@ class Migration(SchemaMigration):
         # Adding model 'Organisation'
         db.create_table('contacts_organisation', (
             ('contact_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['contacts.Contact'], unique=True, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=150, null=True, blank=True)),
-            ('abn', self.gf('django.db.models.fields.CharField')(max_length=11, null=True, blank=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=150, null=True, blank=True)),
+            ('abn', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=11, null=True, blank=True)),
         ))
         db.send_create_signal('contacts', ['Organisation'])
 
@@ -182,8 +183,8 @@ class Migration(SchemaMigration):
         'contacts.address': {
             'Meta': {'object_name': 'Address'},
             'city': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']"}),
-            'country': ('django_countries.fields.CountryField', [], {'db_index': 'True', 'max_length': '2', 'null': 'True', 'blank': 'True'}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'addresses'", 'to': "orm['contacts.Contact']"}),
+            'country': ('django_countries.fields.CountryField', [], {'default': "'AU'", 'max_length': '2', 'null': 'True', 'db_index': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'postcode': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '30', 'null': 'True', 'blank': 'True'}),
@@ -209,14 +210,14 @@ class Migration(SchemaMigration):
         },
         'contacts.email': {
             'Meta': {'object_name': 'Email'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'emails'", 'to': "orm['contacts.Contact']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'value': ('django.db.models.fields.EmailField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'})
         },
         'contacts.instantmessengerhandle': {
             'Meta': {'object_name': 'InstantMessengerHandle'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'instant_messenger_handles'", 'to': "orm['contacts.Contact']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'null': 'True', 'blank': 'True'}),
@@ -224,15 +225,15 @@ class Migration(SchemaMigration):
         },
         'contacts.nickname': {
             'Meta': {'object_name': 'Nickname'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'nicknames'", 'to': "orm['contacts.Contact']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'})
         },
         'contacts.organisation': {
             'Meta': {'ordering': "['-created_at']", 'object_name': 'Organisation', '_ormbases': ['contacts.Contact']},
-            'abn': ('django.db.models.fields.CharField', [], {'max_length': '11', 'null': 'True', 'blank': 'True'}),
+            'abn': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '11', 'null': 'True', 'blank': 'True'}),
             'contact_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['contacts.Contact']", 'unique': 'True', 'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '150', 'null': 'True', 'blank': 'True'})
+            'name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '150', 'null': 'True', 'blank': 'True'})
         },
         'contacts.person': {
             'Meta': {'ordering': "['-created_at']", 'object_name': 'Person', '_ormbases': ['contacts.Contact']},
@@ -242,7 +243,8 @@ class Migration(SchemaMigration):
             'last_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'}),
             'organisations': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'people'", 'to': "orm['contacts.Organisation']", 'through': "orm['contacts.PersonOrganisation']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'suffix': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'})
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'null': 'True', 'blank': 'True'})
         },
         'contacts.personorganisation': {
             'Meta': {'object_name': 'PersonOrganisation'},
@@ -254,7 +256,7 @@ class Migration(SchemaMigration):
         },
         'contacts.phone': {
             'Meta': {'object_name': 'Phone'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phones'", 'to': "orm['contacts.Contact']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'null': 'True', 'blank': 'True'}),
@@ -262,7 +264,7 @@ class Migration(SchemaMigration):
         },
         'contacts.website': {
             'Meta': {'object_name': 'Website'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'websites'", 'to': "orm['contacts.Contact']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'value': ('django.db.models.fields.URLField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'})
