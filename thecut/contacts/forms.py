@@ -1,5 +1,10 @@
-from thecut.contacts.models import Person, Organisation
+from thecut.contacts.models import ContactGroup, Person, Organisation
 from thecut.core.forms import ModelAdminForm
+
+
+class ContactGroupAdminForm(ModelAdminForm):
+    class Meta:
+        model = ContactGroup
 
 
 class PersonAdminForm(ModelAdminForm):

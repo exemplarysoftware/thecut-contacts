@@ -100,7 +100,22 @@ class Website(models.Model):
         return super(Website, self).save(*args, **kwargs)
 
 
+class ContactGroup(AbstractBaseResource):
+    name = models.CharField(max_length=150, db_index=True,
+        blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    tags = TagField(blank=True, null=True, help_text='Separate tags \
+        with spaces, put quotes around multiple-word tags.')
+    
+    objects = QuerySetManager()
+    
+    def __unicode__(self):
+        return self.name
+
+
 class Contact(AbstractBaseResource):
+    groups = models.ManyToManyField('contacts.ContactGroup',
+        related_name='contacts', blank=True, null=True)
     image = models.FileField(
         upload_to='uploads/contacts/images/%Y/%m/%d',
         blank=True, null=True)
@@ -133,8 +148,10 @@ class Contact(AbstractBaseResource):
 
 
 class PersonOrganisation(models.Model):
-    person = models.ForeignKey('contacts.Person')
-    organisation = models.ForeignKey('contacts.Organisation')
+    person = models.ForeignKey('contacts.Person',
+        related_name='occupations')
+    organisation = models.ForeignKey('contacts.Organisation',
+        related_name='positions')
     title = models.CharField(max_length=100, blank=True, null=True)
     department = models.CharField(max_length=100, blank=True,
         null=True)
@@ -181,10 +198,8 @@ class Person(Contact):
     def name(self):
         if self.first_name and self.last_name:
             return ' '.join([self.first_name, self.last_name])
-        elif self.first_name or self.last_name:
-            return self.first_name or self.last_name
         else:
-            return None
+            return self.first_name or self.last_name or None
 
 
 class Organisation(Contact):

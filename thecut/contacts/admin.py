@@ -1,9 +1,48 @@
 from django.contrib import admin
-from thecut.contacts.forms import PersonAdminForm, \
-    OrganisationAdminForm
-from thecut.contacts.models import Address, Email, InstantMessengerHandle, \
-    Nickname, Organisation, Person, PersonOrganisation, Phone, Website
+from thecut.contacts.forms import ContactGroupAdminForm, \
+    PersonAdminForm, OrganisationAdminForm
+from thecut.contacts.models import Address, ContactGroup, Email, \
+    InstantMessengerHandle, Nickname, Organisation, Person, \
+    PersonOrganisation, Phone, Website
 from thecut.core.admin import ModelAdmin
+
+
+def email(obj):
+    email = obj.get_email()
+    return email and '<a href="mailto:%(email)s" ' \
+        'title="%(title)s">%(email)s</a>' %(
+        {'email': email, 'title': email.name}) or ''
+email.allow_tags = True
+
+
+def location(obj):
+    address = obj.get_address()
+    return address and ', '.join([address.city,
+        unicode(address.country.name)]) or ''
+
+
+def phone(obj):
+    phone = obj.get_phone()
+    return phone or ''
+
+
+def preview_image(obj):
+    html = u''
+    try:
+        from sorl.thumbnail import get_thumbnail
+    except ImportError:
+        pass
+    else:
+        if obj.image:
+            try:
+                thumb = get_thumbnail(obj.image, '100x75', crop='center')
+            except:
+                pass
+            else:
+                html = u'<img src="%s" alt="%s" />' %(thumb.url, str(obj))
+    return html
+preview_image.short_description = 'Image'
+preview_image.allow_tags = True
 
 
 class NicknameInline(admin.TabularInline):
@@ -57,7 +96,7 @@ class PersonAdmin(ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', ('first_name', 'last_name'),
             'suffix', 'image', 'date_of_birth', 'biography', 'notes',
-            'tags']}),
+            'groups', 'tags']}),
         ('Publishing', {'fields': [('publish_at', 'is_enabled'),
             'expire_at', 'publish_by', 'is_featured',
             ('created_at', 'created_by'),
@@ -65,8 +104,8 @@ class PersonAdmin(ModelAdmin):
             'classes': ['collapse']}),
     ]
     form = PersonAdminForm
-    list_display = ['name', 'email', 'phone', 'location']
-    list_filter = ['organisations']
+    list_display = ['name', email, phone, location, preview_image]
+    list_filter = ['organisations', 'groups']
     readonly_fields = ['created_at', 'created_by',
         'updated_at', 'updated_by']
     inlines = [PersonOrganisationInline, NicknameInline, AddressInline,
@@ -74,22 +113,6 @@ class PersonAdmin(ModelAdmin):
         WebsiteInline]
     search_fields = ['first_name', 'last_name', 'nicknames__value',
         'emails__value', 'phones__value']
-    
-    def email(self, obj):
-        email = obj.get_email()
-        return email and '<a href="mailto:%(email)s" ' \
-            'title="%(title)s">%(email)s</a>' %(
-            {'email': email, 'title': email.name}) or ''
-    email.allow_tags = True
-    
-    def location(self, obj):
-        address = obj.get_address()
-        return address and ', '.join([address.city,
-            unicode(address.country.name)]) or ''
-    
-    def phone(self, obj):
-        phone = obj.get_phone()
-        return phone or ''
 
 admin.site.register(Person, PersonAdmin)
 
@@ -97,7 +120,7 @@ admin.site.register(Person, PersonAdmin)
 class OrganisationAdmin(ModelAdmin):
     fieldsets = [
         (None, {'fields': ['name', 'abn', 'image', 'biography',
-            'notes', 'tags']}),
+            'notes', 'groups', 'tags']}),
         ('Publishing', {'fields': [('publish_at', 'is_enabled'),
             'expire_at', 'publish_by', 'is_featured',
             ('created_at', 'created_by'),
@@ -105,6 +128,8 @@ class OrganisationAdmin(ModelAdmin):
             'classes': ['collapse']}),
     ]
     form = OrganisationAdminForm
+    list_display = ['name', email, phone, location, preview_image]
+    list_filter = ['groups']
     readonly_fields = ['created_at', 'created_by',
         'updated_at', 'updated_by']
     inlines = [NicknameInline, AddressInline, EmailInline, PhoneInline,
@@ -114,4 +139,22 @@ class OrganisationAdmin(ModelAdmin):
         'emails__value', 'phones__value']
 
 admin.site.register(Organisation, OrganisationAdmin)
+
+
+class ContactGroupAdmin(ModelAdmin):
+    fieldsets = [
+        (None, {'fields': ['name', 'notes', 'tags']}),
+        ('Publishing', {'fields': [('publish_at', 'is_enabled'),
+            'expire_at', 'publish_by', 'is_featured',
+            ('created_at', 'created_by'),
+            ('updated_at', 'updated_by')],
+            'classes': ['collapse']}),
+    ]
+    form = ContactGroupAdminForm
+    list_display = ['name']
+    readonly_fields = ['created_at', 'created_by',
+        'updated_at', 'updated_by']
+    search_fields = ['name']
+
+admin.site.register(ContactGroup, ContactGroupAdmin)
 
