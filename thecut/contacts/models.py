@@ -81,7 +81,7 @@ class Phone(models.Model):
         return self.value
     
     def save(self, *args, **kwargs):
-        self.value = re.sub('\s+' , '', self.value)
+        self.value = re.sub('[^\d\+]+', '', self.value)
         return super(Phone, self).save(*args, **kwargs)
 
 
@@ -109,6 +109,9 @@ class ContactGroup(AbstractBaseResource):
     
     objects = QuerySetManager()
     
+    class Meta(AbstractBaseResource.Meta):
+        ordering = ['name']
+    
     def __unicode__(self):
         return self.name
 
@@ -125,6 +128,9 @@ class Contact(AbstractBaseResource):
         with spaces, put quotes around multiple-word tags.')
     
     objects = QuerySetManager()
+    
+    class Meta(AbstractBaseResource.Meta):
+        pass
     
     def _get_first_m2m_item(self, m2m_field):
         queryset = m2m_field.all()
@@ -189,10 +195,14 @@ class Person(Contact):
     objects = QuerySetManager()
     
     class Meta(Contact.Meta):
+        ordering = ['last_name', 'first_name']
         verbose_name_plural = 'people'
     
     def __unicode__(self):
-        return self.name or 'Unnamed'
+        if self.first_name and self.last_name:
+            return ', '.join([self.last_name, self.first_name])
+        else:
+            return self.name or 'Unnamed'
     
     @property
     def name(self):
@@ -209,6 +219,9 @@ class Organisation(Contact):
         blank=True, null=True)
     
     objects = QuerySetManager()
+    
+    class Meta(Contact.Meta):
+        ordering = ['name']
     
     def __unicode__(self):
         return self.name

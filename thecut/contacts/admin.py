@@ -17,8 +17,13 @@ email.allow_tags = True
 
 def location(obj):
     address = obj.get_address()
-    return address and ', '.join([address.city,
-        unicode(address.country.name)]) or ''
+    city = address and address.city or ''
+    country = address and address.country or ''
+    
+    if city and country:
+        return '%s, %s' %(city, country)
+    else:
+        return city or country or ''
 
 
 def phone(obj):
@@ -104,7 +109,7 @@ class PersonAdmin(ModelAdmin):
             'classes': ['collapse']}),
     ]
     form = PersonAdminForm
-    list_display = ['name', email, phone, location, preview_image]
+    list_display = ['__unicode__', email, phone, location, preview_image]
     list_filter = ['organisations', 'groups']
     readonly_fields = ['created_at', 'created_by',
         'updated_at', 'updated_by']
