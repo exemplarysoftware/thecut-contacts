@@ -19,7 +19,8 @@ class Address(models.Model):
         blank=True, null=True)
     postcode = models.CharField(max_length=30, db_index=True,
         blank=True, null=True)
-    country = CountryField(default=DEFAULT_COUNTRY, db_index=True, blank=True, null=True)
+    country = CountryField(default=DEFAULT_COUNTRY, db_index=True, blank=True,
+        null=True)
     
     def __unicode__(self):
         return self.address
@@ -40,9 +41,10 @@ class Email(models.Model):
     def __unicode__(self):
         return self.value
     
-    def save(self, *args, **kwargs):
-        self.value = self.value.lower()
-        return super(Email, self).save(*args, **kwargs)
+    def clean_fields(self, *args, **kwargs):
+        super(Email, self).clean_fields(*args, **kwargs)
+        if not 'value' in kwargs.get('exclude', []):
+            self.value = self.value.lower()
 
 
 class InstantMessengerHandle(models.Model):
@@ -80,9 +82,10 @@ class Phone(models.Model):
     def __unicode__(self):
         return self.value
     
-    def save(self, *args, **kwargs):
-        self.value = re.sub('[^\d\+]+', '', self.value)
-        return super(Phone, self).save(*args, **kwargs)
+    def clean_fields(self, *args, **kwargs):
+        super(Phone, self).clean_fields(*args, **kwargs)
+        if not 'value' in kwargs.get('exclude', []):
+            self.value = re.sub('[^\d\+]+', '', self.value)
 
 
 class Website(models.Model):
@@ -95,9 +98,10 @@ class Website(models.Model):
     def __unicode__(self):
         return self.value
     
-    def save(self, *args, **kwargs):
-        self.value = self.value.lower()
-        return super(Website, self).save(*args, **kwargs)
+    def clean_fields(self, *args, **kwargs):
+        super(Website, self).clean_fields(*args, **kwargs)
+        if not 'value' in kwargs.get('exclude', []):
+            self.value = self.value.lower()
 
 
 class ContactGroup(AbstractBaseResource):
