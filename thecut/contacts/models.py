@@ -150,6 +150,9 @@ class Contact(AbstractBaseResource):
     def get_email(self):
         return self._get_first_m2m_item(self.emails)
     
+    def get_nickname(self):
+        return self._get_first_m2m_item(self.nicknames)
+    
     def get_phone(self):
         return self._get_first_m2m_item(self.phones)
     
