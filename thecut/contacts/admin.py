@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db import models
+from django.forms import TextInput
 from thecut.contacts.forms import ContactGroupAdminForm, \
     PersonAdminForm, OrganisationAdminForm
 from thecut.contacts.models import Address, ContactGroup, Email, \
@@ -57,6 +59,10 @@ class NicknameInline(admin.TabularInline):
 
 class AddressInline(admin.StackedInline):
     extra = 0
+    fieldsets = [(None, {'fields': ['name', ('street', 'city'),
+        ('state', 'postcode'), 'country']})]
+    formfield_overrides = {models.TextField: {'widget': TextInput(
+        attrs={'class': 'vTextField'})}}
     model = Address
 
 
