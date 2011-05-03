@@ -69,6 +69,7 @@ class AddressInline(admin.StackedInline):
 class EmailInline(admin.TabularInline):
     extra = 0
     model = Email
+    verbose_name_plural = 'Email address'
     verbose_name_plural = 'Email addresses'
 
 
@@ -81,7 +82,8 @@ class InstantMessengerHandleInline(admin.TabularInline):
 class PhoneInline(admin.TabularInline):
     extra = 0
     model = Phone
-    verbose_name_plural = 'Phone numbers / addresses'
+    verbose_name = 'Phone number'
+    verbose_name_plural = 'Phone numbers'
 
 
 class WebsiteInline(admin.TabularInline):

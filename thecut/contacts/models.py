@@ -74,7 +74,7 @@ class Phone(models.Model):
     contact = models.ForeignKey('contacts.Contact',
         related_name='phones')
     name = models.CharField(max_length=50, blank=True, null=True)
-    value = models.CharField('Number / address', max_length=75, db_index=True,
+    value = models.CharField('Number', max_length=75, db_index=True,
         blank=True, null=True)
     type = models.CharField(max_length=50, db_index=True,
         choices=PHONE_TYPES, blank=True, null=True)
