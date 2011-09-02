@@ -8,9 +8,7 @@ from thecut.contacts.settings import DEFAULT_COUNTRY, \
 import re
 
 
-class Address(models.Model):
-    contact = models.ForeignKey('contacts.Contact',
-        related_name='addresses')
+class AbstractAddress(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
     street = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=50, db_index=True,
@@ -22,6 +20,9 @@ class Address(models.Model):
     country = CountryField(default=DEFAULT_COUNTRY, db_index=True, blank=True,
         null=True)
     
+    class Meta(object):
+        abstract = True
+    
     def __unicode__(self):
         return self.address
     
@@ -29,6 +30,11 @@ class Address(models.Model):
     def address(self):
         return ' '.join([self.street, self.city,
             self.state, self.postcode, unicode(self.country.name)])
+
+
+class Address(AbstractAddress):
+    contact = models.ForeignKey('contacts.Contact',
+        related_name='addresses')
 
 
 class Email(models.Model):
