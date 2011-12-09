@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
 from django.db import models
 from django_countries import CountryField
 from tagging.fields import TagField
 from thecut.core.managers import QuerySetManager
 from thecut.core.models import AbstractBaseResource
-from thecut.contacts.settings import DEFAULT_COUNTRY, \
-    INSTANT_MESSENGER_TYPES, PHONE_TYPES
+from thecut.contacts import settings
 import re
 
 
@@ -17,8 +18,8 @@ class AbstractAddress(models.Model):
         blank=True, null=True)
     postcode = models.CharField(max_length=30, db_index=True,
         blank=True, null=True)
-    country = CountryField(default=DEFAULT_COUNTRY, db_index=True, blank=True,
-        null=True)
+    country = CountryField(default=settings.DEFAULT_COUNTRY, db_index=True,
+        blank=True, null=True)
     
     class Meta(object):
         abstract = True
@@ -60,7 +61,7 @@ class InstantMessengerHandle(models.Model):
     value = models.CharField('ID', max_length=75, db_index=True,
         blank=True, null=True)
     type = models.CharField(max_length=50, db_index=True,
-        choices=INSTANT_MESSENGER_TYPES, blank=True, null=True)
+        choices=settings.INSTANT_MESSENGER_CHOICES, blank=True, null=True)
     
     def __unicode__(self):
         return self.value
@@ -83,7 +84,7 @@ class Phone(models.Model):
     value = models.CharField('Number', max_length=75, db_index=True,
         blank=True, null=True)
     type = models.CharField(max_length=50, db_index=True,
-        choices=PHONE_TYPES, blank=True, null=True)
+        choices=settings.PHONE_TYPE_CHOICES, blank=True, null=True)
     
     def __unicode__(self):
         return self.value
