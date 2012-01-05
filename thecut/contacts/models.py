@@ -224,7 +224,7 @@ class AbstractPerson(Contact):
     title = models.CharField(max_length=15, blank=True)
     first_name = models.CharField(max_length=75, db_index=True, blank=True)
     last_name = models.CharField(max_length=75, db_index=True, blank=True)
-    suffix = models.CharField(max_length=15, blank=True)
+    suffix = models.CharField(max_length=250, blank=True)
     date_of_birth = models.DateField(blank=True, null=True)
     objects = QuerySetManager()
     
