@@ -2,10 +2,11 @@
 from __future__ import absolute_import, unicode_literals
 from django.db import models
 from django_countries import CountryField
+from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
-from thecut.core.managers import QuerySetManager
-from thecut.core.models import AbstractBaseResource
 from thecut.contacts import settings
+from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
+    AbstractContactQuerySet)
 import re
 
 
@@ -130,39 +131,66 @@ class Website(AbstractWebsite):
     contact = models.ForeignKey('contacts.Contact', related_name='websites')
 
 
-class AbstractContactGroup(AbstractBaseResource):
+class AbstractContactGroup(models.Model):
+    
     name = models.CharField(max_length=150, db_index=True, blank=True)
     notes = models.TextField(blank=True)
     tags = TagField(blank=True, help_text='Separate tags with spaces, put ' \
         'quotes around multiple-word tags.')
-    objects = QuerySetManager()
+    is_enabled = models.BooleanField('enabled', default=True)
+    is_featured = models.BooleanField('featured', default=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    created_by = models.ForeignKey('auth.User', editable=False,
+        related_name='%(class)s_created_by_user')
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    updated_by = models.ForeignKey('auth.User', editable=False,
+        related_name='%(class)s_updated_by_user')
+    objects = PassThroughManager().for_queryset_class(
+        AbstractContactGroupQuerySet)()
     
-    class Meta(AbstractBaseResource.Meta):
+    class Meta(object):
         abstract = True
-        ordering = ['name']
+        get_latest_by = 'created_at'
+        ordering = ['name', '-created_at']
     
     def __unicode__(self):
         return self.name
+    
+    def is_active(self):
+        return self in self.__class__.objects.active().filter(pk=self.pk)
 
 
 class ContactGroup(AbstractContactGroup):
-    objects = QuerySetManager()
     
     class Meta(AbstractContactGroup.Meta):
         pass
 
 
-class AbstractContact(AbstractBaseResource):
+class AbstractContact(models.Model):
+    
     image = models.FileField(upload_to='uploads/contacts/images/%Y/%m/%d',
         blank=True, null=True)
     biography = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     tags = TagField(blank=True, help_text='Separate tags with spaces, put ' \
         'quotes around multiple-word tags.')
-    objects = QuerySetManager()
+    is_enabled = models.BooleanField('enabled', default=True)
+    is_featured = models.BooleanField('featured', default=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    created_by = models.ForeignKey('auth.User', editable=False,
+        related_name='%(class)s_created_by_user')
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    updated_by = models.ForeignKey('auth.User', editable=False,
+        related_name='%(class)s_updated_by_user')
+    objects = PassThroughManager().for_queryset_class(AbstractContactQuerySet)()
     
-    class Meta(AbstractBaseResource.Meta):
+    class Meta(object):
         abstract = True
+        get_latest_by = 'created_at'
+        ordering = ['-created_at']
+    
+    def is_active(self):
+        return self in self.__class__.objects.active().filter(pk=self.pk)
     
     def _get_first_m2m_item(self, m2m_field):
         queryset = m2m_field.all()
@@ -191,7 +219,6 @@ class AbstractContact(AbstractBaseResource):
 class Contact(AbstractContact):
     groups = models.ManyToManyField('contacts.ContactGroup',
         related_name='contacts', blank=True, null=True)
-    objects = QuerySetManager()
     
     class Meta(AbstractContact.Meta):
         pass
@@ -226,7 +253,6 @@ class AbstractPerson(Contact):
     last_name = models.CharField(max_length=75, db_index=True, blank=True)
     suffix = models.CharField(max_length=250, blank=True)
     date_of_birth = models.DateField(blank=True, null=True)
-    objects = QuerySetManager()
     
     class Meta(Contact.Meta):
         abstract = True
@@ -249,7 +275,6 @@ class Person(AbstractPerson):
     organisations = models.ManyToManyField('contacts.Organisation',
         related_name='people', through='contacts.PersonOrganisation',
         blank=True, null=True)
-    objects = QuerySetManager()
     
     class Meta(AbstractPerson.Meta):
         verbose_name_plural = 'people'
@@ -258,7 +283,6 @@ class Person(AbstractPerson):
 class AbstractOrganisation(Contact):
     name = models.CharField(max_length=150, db_index=True, blank=True)
     abn = models.CharField('ABN', max_length=11, db_index=True, blank=True)
-    objects = QuerySetManager()
     
     class Meta(Contact.Meta):
         abstract = True
@@ -269,7 +293,6 @@ class AbstractOrganisation(Contact):
 
 
 class Organisation(AbstractOrganisation):
-    objects = QuerySetManager()
     
     class Meta(AbstractOrganisation.Meta):
         pass
