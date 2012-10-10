@@ -3,12 +3,9 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
-from thecut.contacts.forms import ContactGroupAdminForm, \
-    PersonAdminForm, OrganisationAdminForm
-from thecut.contacts.models import Address, ContactGroup, Email, \
-    InstantMessengerHandle, Nickname, Organisation, Person, \
-    PersonOrganisation, Phone, Website
-from thecut.core.admin import ModelAdmin
+from thecut.contacts.models import (Address, ContactGroup, Email,
+    InstantMessengerHandle, Nickname, Organisation, Person, PersonOrganisation,
+    Phone, Website)
 
 
 def email(obj):
@@ -107,18 +104,24 @@ class OrganisationPersonInline(admin.TabularInline):
     verbose_name_plural = 'People'
 
 
-class PersonAdmin(ModelAdmin):
+class CreatedUpdatedMixin(object):
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        obj.updated_by = request.user
+        return super(CreatedUpdatedMixin, self).save_model(request, obj, form,
+            change)
+
+
+class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', ('first_name', 'last_name'),
             'suffix', 'image', 'date_of_birth', 'biography', 'notes',
             'groups', 'tags']}),
-        ('Publishing', {'fields': [('publish_at', 'is_enabled'),
-            'expire_at', 'publish_by', 'is_featured',
-            ('created_at', 'created_by'),
-            ('updated_at', 'updated_by')],
+        ('Publishing', {'fields': ['is_enabled', 'is_featured',
+            ('created_at', 'created_by'), ('updated_at', 'updated_by')],
             'classes': ['collapse']}),
     ]
-    form = PersonAdminForm
     list_display = ['__unicode__', email, phone, location, preview_image]
     list_filter = ['organisations', 'groups']
     readonly_fields = ['created_at', 'created_by',
@@ -132,17 +135,14 @@ class PersonAdmin(ModelAdmin):
 admin.site.register(Person, PersonAdmin)
 
 
-class OrganisationAdmin(ModelAdmin):
+class OrganisationAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['name', 'abn', 'image', 'biography',
             'notes', 'groups', 'tags']}),
-        ('Publishing', {'fields': [('publish_at', 'is_enabled'),
-            'expire_at', 'publish_by', 'is_featured',
-            ('created_at', 'created_by'),
-            ('updated_at', 'updated_by')],
+        ('Publishing', {'fields': ['is_enabled', 'is_featured',
+            ('created_at', 'created_by'), ('updated_at', 'updated_by')],
             'classes': ['collapse']}),
     ]
-    form = OrganisationAdminForm
     list_display = ['name', email, phone, location, preview_image]
     list_filter = ['groups']
     readonly_fields = ['created_at', 'created_by',
@@ -156,16 +156,13 @@ class OrganisationAdmin(ModelAdmin):
 admin.site.register(Organisation, OrganisationAdmin)
 
 
-class ContactGroupAdmin(ModelAdmin):
+class ContactGroupAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['name', 'notes', 'tags']}),
-        ('Publishing', {'fields': [('publish_at', 'is_enabled'),
-            'expire_at', 'publish_by', 'is_featured',
-            ('created_at', 'created_by'),
-            ('updated_at', 'updated_by')],
+        ('Publishing', {'fields': ['is_enabled', 'is_featured',
+            ('created_at', 'created_by'), ('updated_at', 'updated_by')],
             'classes': ['collapse']}),
     ]
-    form = ContactGroupAdminForm
     list_display = ['name']
     readonly_fields = ['created_at', 'created_by',
         'updated_at', 'updated_by']

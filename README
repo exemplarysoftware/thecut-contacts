@@ -8,7 +8,7 @@ thecut.contacts
 
 To install this application (whilst in the project's activated
 virtualenv)::
-    pip install git+ssh://git@git.thecut.net.au/thecut-contacts@0.032#egg=contacts
+    pip install git+ssh://git@git.thecut.net.au/thecut-contacts
 
 
 Add the ``thecut.contacts`` to the project's ``INSTALLED_APPS`` setting::
