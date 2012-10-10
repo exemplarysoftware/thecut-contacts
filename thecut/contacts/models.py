@@ -141,10 +141,10 @@ class AbstractContactGroup(models.Model):
     is_featured = models.BooleanField('featured', default=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey('auth.User', editable=False,
-        related_name='%(class)s_created_by_user')
+        related_name='+')
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     updated_by = models.ForeignKey('auth.User', editable=False,
-        related_name='%(class)s_updated_by_user')
+        related_name='+')
     objects = PassThroughManager().for_queryset_class(
         AbstractContactGroupQuerySet)()
     
@@ -178,10 +178,10 @@ class AbstractContact(models.Model):
     is_featured = models.BooleanField('featured', default=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey('auth.User', editable=False,
-        related_name='%(class)s_created_by_user')
+        related_name='+')
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     updated_by = models.ForeignKey('auth.User', editable=False,
-        related_name='%(class)s_updated_by_user')
+        related_name='+')
     objects = PassThroughManager().for_queryset_class(AbstractContactQuerySet)()
     
     class Meta(object):
