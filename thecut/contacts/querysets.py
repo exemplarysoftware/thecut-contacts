@@ -69,3 +69,27 @@ class ContactEmailQuerySet(models.query.QuerySet):
         from thecut.contacts.models import Contact
         return Contact.objects.filter(emails__in=self)
 
+
+class ContactInstantMessengerHandleQuerySet(models.query.QuerySet):
+    
+    def instant_messenger_handles(self):
+        """Return ordered QuerySet of related ``InstantMessengerHandle`` objects.
+        
+        :returns: Filtered QuerySet.
+        :rtype: QuerySet instance.
+        
+        """
+        from thecut.contacts.models import InstantMessengerHandle
+        return InstantMessengerHandle.objects.filter(
+            contacts__in=self).order_by('contacts__order')
+    
+    def contacts(self):
+        """Return related ``Contact`` objects.
+        
+        :returns: Filtered AbstractContactQuerySet.
+        :rtype: AbstractContactQuerySet instance.
+        
+        """
+        from thecut.contacts.models import Contact
+        return Contact.objects.filter(instant_messenger_handles__in=self)
+

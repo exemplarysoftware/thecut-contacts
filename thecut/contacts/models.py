@@ -6,7 +6,8 @@ from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
 from thecut.contacts import receivers, settings
 from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
-    AbstractContactQuerySet, ContactAddressQuerySet, ContactEmailQuerySet)
+    AbstractContactQuerySet, ContactAddressQuerySet, ContactEmailQuerySet,
+    ContactInstantMessengerHandleQuerySet)
 import re
 
 
@@ -32,6 +33,7 @@ class AbstractAddress(models.Model):
 
 
 class Address(AbstractAddress):
+    
     pass
 
 
@@ -53,6 +55,7 @@ class AbstractEmail(models.Model):
 
 
 class Email(AbstractEmail):
+    
     pass
 
 
@@ -70,8 +73,8 @@ class AbstractInstantMessengerHandle(models.Model):
 
 
 class InstantMessengerHandle(AbstractInstantMessengerHandle):
-    contact = models.ForeignKey('contacts.Contact',
-        related_name='instant_messenger_handles')
+    
+    pass
 
 
 class AbstractNickname(models.Model):
@@ -257,6 +260,27 @@ class ContactEmail(models.Model):
         return unicode(self.email)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactEmail)
+
+
+class ContactInstantMessengerHandle(models.Model):
+    
+    contact = models.ForeignKey('contacts.Contact',
+        related_name='instant_messenger_handles')
+    instant_messenger_handle = models.ForeignKey(
+        'contacts.InstantMessengerHandle', related_name='contacts')
+    order = models.PositiveIntegerField(default=0)
+    objects = PassThroughManager().for_queryset_class(
+        ContactInstantMessengerHandleQuerySet)()
+    
+    class Meta(object):
+        ordering = ['order']
+        unique_together = ['contact', 'instant_messenger_handle']
+    
+    def __unicode__(self):
+        return unicode(self.instant_messenger_handle)
+
+models.signals.pre_save.connect(receivers.set_order,
+    sender=ContactInstantMessengerHandle)
 
 
 
