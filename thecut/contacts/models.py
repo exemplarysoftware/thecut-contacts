@@ -13,6 +13,7 @@ import warnings
 
 
 class AbstractAddress(models.Model):
+    
     name = models.CharField(max_length=50, blank=True)
     street = models.TextField(blank=True)
     city = models.CharField(max_length=50, db_index=True, blank=True)
@@ -29,8 +30,9 @@ class AbstractAddress(models.Model):
     
     @property
     def address(self):
-        return ' '.join([self.street, self.city,
-            self.state, self.postcode, unicode(self.country.name)])
+        items = [self.street, self.city, self.state, self.postcode,
+            unicode(self.country.name)]
+        return ' '.join(filter(bool, items))
 
 
 class Address(AbstractAddress):
@@ -39,6 +41,7 @@ class Address(AbstractAddress):
 
 
 class AbstractEmail(models.Model):
+    
     name = models.CharField(max_length=50, blank=True)
     value = models.EmailField('Email', max_length=75, db_index=True,
         blank=True)
@@ -61,6 +64,7 @@ class Email(AbstractEmail):
 
 
 class AbstractInstantMessengerHandle(models.Model):
+    
     name = models.CharField(max_length=50, blank=True)
     value = models.CharField('ID', max_length=75, db_index=True, blank=True)
     type = models.CharField(max_length=50, db_index=True,
@@ -79,6 +83,7 @@ class InstantMessengerHandle(AbstractInstantMessengerHandle):
 
 
 class AbstractNickname(models.Model):
+    
     value = models.CharField('Name', max_length=75, db_index=True, blank=True)
     
     class Meta(object):
@@ -89,10 +94,12 @@ class AbstractNickname(models.Model):
 
 
 class Nickname(AbstractNickname):
+    
     contact = models.ForeignKey('contacts.Contact', related_name='nicknames')
 
 
 class AbstractPhone(models.Model):
+    
     name = models.CharField(max_length=50, blank=True)
     value = models.CharField('Number', max_length=75, db_index=True,
         blank=True)
@@ -117,6 +124,7 @@ class Phone(AbstractPhone):
 
 
 class AbstractWebsite(models.Model):
+    
     name = models.CharField(max_length=50, blank=True)
     value = models.URLField('URL', max_length=255, db_index=True, blank=True)
     
@@ -133,6 +141,7 @@ class AbstractWebsite(models.Model):
 
 
 class Website(AbstractWebsite):
+    
     contact = models.ForeignKey('contacts.Contact', related_name='websites')
 
 
@@ -315,6 +324,7 @@ models.signals.pre_save.connect(receivers.set_order, sender=ContactPhone)
 
 
 class PersonOrganisation(models.Model):
+    
     person = models.ForeignKey('contacts.Person', related_name='occupations')
     organisation = models.ForeignKey('contacts.Organisation',
         related_name='positions')
@@ -338,6 +348,7 @@ class PersonOrganisation(models.Model):
 
 
 class AbstractPerson(Contact):
+    
     title = models.CharField(max_length=15, blank=True)
     first_name = models.CharField(max_length=75, db_index=True, blank=True)
     last_name = models.CharField(max_length=75, db_index=True, blank=True)
@@ -360,6 +371,7 @@ class AbstractPerson(Contact):
 
 
 class Person(AbstractPerson):
+    
     user = models.OneToOneField('auth.User', related_name='contact',
         blank=True, null=True)
     organisations = models.ManyToManyField('contacts.Organisation',
@@ -371,6 +383,7 @@ class Person(AbstractPerson):
 
 
 class AbstractOrganisation(Contact):
+    
     name = models.CharField(max_length=150, db_index=True, blank=True)
     abn = models.CharField('ABN', max_length=11, db_index=True, blank=True)
     
