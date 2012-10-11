@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
-from thecut.contacts.models import (ContactAddress, ContactGroup, Email,
+from thecut.contacts.models import (ContactAddress, ContactGroup, ContactEmail,
     InstantMessengerHandle, Nickname, Organisation, Person, PersonOrganisation,
     Phone, Website)
 
@@ -67,7 +67,7 @@ class AddressInline(admin.StackedInline):
 
 class EmailInline(admin.TabularInline):
     extra = 0
-    model = Email
+    model = ContactEmail
     verbose_name_plural = 'Email address'
     verbose_name_plural = 'Email addresses'
 

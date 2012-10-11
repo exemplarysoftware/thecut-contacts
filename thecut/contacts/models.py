@@ -6,7 +6,7 @@ from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
 from thecut.contacts import receivers, settings
 from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
-    AbstractContactQuerySet, ContactAddressQuerySet)
+    AbstractContactQuerySet, ContactAddressQuerySet, ContactEmailQuerySet)
 import re
 
 
@@ -53,7 +53,7 @@ class AbstractEmail(models.Model):
 
 
 class Email(AbstractEmail):
-    contact = models.ForeignKey('contacts.Contact', related_name='emails')
+    pass
 
 
 class AbstractInstantMessengerHandle(models.Model):
@@ -240,6 +240,24 @@ class ContactAddress(models.Model):
         return unicode(self.address)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactAddress)
+
+
+class ContactEmail(models.Model):
+    
+    contact = models.ForeignKey('contacts.Contact', related_name='emails')
+    email = models.ForeignKey('contacts.Email', related_name='contacts')
+    order = models.PositiveIntegerField(default=0)
+    objects = PassThroughManager().for_queryset_class(ContactEmailQuerySet)()
+    
+    class Meta(object):
+        ordering = ['order']
+        unique_together = ['contact', 'email']
+    
+    def __unicode__(self):
+        return unicode(self.email)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactEmail)
+
 
 
 class PersonOrganisation(models.Model):

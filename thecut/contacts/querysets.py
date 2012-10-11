@@ -45,3 +45,27 @@ class ContactAddressQuerySet(models.query.QuerySet):
         from thecut.contacts.models import Contact
         return Contact.objects.filter(addresses__in=self)
 
+
+class ContactEmailQuerySet(models.query.QuerySet):
+    
+    def emails(self):
+        """Return ordered QuerySet of related ``Email`` objects.
+        
+        :returns: Filtered QuerySet.
+        :rtype: QuerySet instance.
+        
+        """
+        from thecut.contacts.models import Email
+        return Email.objects.filter(contacts__in=self).order_by(
+            'contacts__order')
+    
+    def contacts(self):
+        """Return related ``Contact`` objects.
+        
+        :returns: Filtered AbstractContactQuerySet.
+        :rtype: AbstractContactQuerySet instance.
+        
+        """
+        from thecut.contacts.models import Contact
+        return Contact.objects.filter(emails__in=self)
+
