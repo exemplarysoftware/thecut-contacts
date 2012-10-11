@@ -9,6 +9,7 @@ from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
     AbstractContactQuerySet, ContactAddressQuerySet, ContactEmailQuerySet,
     ContactInstantMessengerHandleQuerySet)
 import re
+import warnings
 
 
 class AbstractAddress(models.Model):
@@ -204,10 +205,18 @@ class AbstractContact(models.Model):
         return item
     
     def get_address(self):
-        return self._get_first_m2m_item(self.addresses)
+        """Deprecated - instead use 'addresses.get_first()'."""
+        warnings.warn('\'get_address\' method is deprecated - use ' \
+            '\'addresses.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.addresses.get_first()
     
     def get_email(self):
-        return self._get_first_m2m_item(self.emails)
+        """Deprecated - instead use 'emails.get_first()'."""
+        warnings.warn('\'get_email\' method is deprecated - use ' \
+            '\'emails.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.emails.get_first()
     
     def get_nickname(self):
         return self._get_first_m2m_item(self.nicknames)
