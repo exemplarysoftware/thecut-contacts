@@ -4,8 +4,8 @@ from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
 from thecut.contacts.models import (ContactAddress, ContactGroup, ContactEmail,
-    ContactInstantMessengerHandle, Nickname, Organisation, Person,
-    PersonOrganisation, Phone, Website)
+    ContactInstantMessengerHandle, ContactPhone, Nickname, Organisation, Person,
+    PersonOrganisation, Website)
 
 
 def email(obj):
@@ -80,7 +80,7 @@ class InstantMessengerHandleInline(admin.TabularInline):
 
 class PhoneInline(admin.TabularInline):
     extra = 0
-    model = Phone
+    model = ContactPhone
     verbose_name = 'Phone number'
     verbose_name_plural = 'Phone numbers'
 

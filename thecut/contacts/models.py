@@ -7,7 +7,7 @@ from tagging.fields import TagField
 from thecut.contacts import receivers, settings
 from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
     AbstractContactQuerySet, ContactAddressQuerySet, ContactEmailQuerySet,
-    ContactInstantMessengerHandleQuerySet)
+    ContactInstantMessengerHandleQuerySet, ContactPhoneQuerySet)
 import re
 import warnings
 
@@ -112,7 +112,8 @@ class AbstractPhone(models.Model):
 
 
 class Phone(AbstractPhone):
-    contact = models.ForeignKey('contacts.Contact', related_name='phones')
+    
+    pass
 
 
 class AbstractWebsite(models.Model):
@@ -222,7 +223,11 @@ class AbstractContact(models.Model):
         return self._get_first_m2m_item(self.nicknames)
     
     def get_phone(self):
-        return self._get_first_m2m_item(self.phones)
+        """Deprecated - instead use 'phones.get_first()'."""
+        warnings.warn('\'get_phone\' method is deprecated - use ' \
+            '\'phones.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.phones.get_first()
     
     def get_website(self):
         return self._get_first_m2m_item(self.websites)
@@ -291,6 +296,22 @@ class ContactInstantMessengerHandle(models.Model):
 models.signals.pre_save.connect(receivers.set_order,
     sender=ContactInstantMessengerHandle)
 
+
+class ContactPhone(models.Model):
+    
+    contact = models.ForeignKey('contacts.Contact', related_name='phones')
+    phone = models.ForeignKey('contacts.Phone', related_name='contacts')
+    order = models.PositiveIntegerField(default=0)
+    objects = PassThroughManager().for_queryset_class(ContactPhoneQuerySet)()
+    
+    class Meta(object):
+        ordering = ['order']
+        unique_together = ['contact', 'phone']
+    
+    def __unicode__(self):
+        return unicode(self.phone)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactPhone)
 
 
 class PersonOrganisation(models.Model):
