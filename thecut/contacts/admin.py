@@ -5,7 +5,7 @@ from django.db import models
 from django.forms import TextInput
 from thecut.contacts.models import (ContactAddress, ContactGroup, ContactEmail,
     ContactInstantMessengerHandle, ContactNickname, ContactPhone, Organisation,
-    Person, PersonOrganisation, Website)
+    Person, PersonOrganisation, ContactWebsite)
 
 
 def email(obj):
@@ -87,7 +87,7 @@ class PhoneInline(admin.TabularInline):
 
 class WebsiteInline(admin.TabularInline):
     extra = 0
-    model = Website
+    model = ContactWebsite
 
 
 class PersonOrganisationInline(admin.TabularInline):

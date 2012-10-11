@@ -7,18 +7,18 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        """Create ContactNickname objects."""
-        for index, nickname in enumerate(orm['contacts.Nickname'].objects.all()):
-            orm['contacts.ContactNickname'](contact=nickname.contact,
-                nickname=nickname, order=index+1).save()
+        """Create ContactWebsite objects."""
+        for index, website in enumerate(orm['contacts.Website'].objects.all()):
+            orm['contacts.ContactWebsite'](contact=website.contact,
+                website=website, order=index+1).save()
 
     def backwards(self, orm):
-        """Remove ContactNickname objects."""
-        for contact_nickname in orm['contacts.ContactNickname'].objects.all():
-            nickname = contact_nickname.nickname
-            nickname.contact = contact_nickname.contact
-            nickname.save()
-            contact_nickname.delete()
+        """Remove ContactWebsite objects."""
+        for contact_website in orm['contacts.ContactWebsite'].objects.all():
+            website = contact_website.website
+            website.contact = contact_website.contact
+            website.save()
+            contact_website.delete()
 
     models = {
         'auth.group': {
@@ -111,7 +111,7 @@ class Migration(DataMigration):
         },
         'contacts.contactnickname': {
             'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'nickname'],)", 'object_name': 'ContactNickname'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'nicknames_new'", 'to': "orm['contacts.Contact']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'nicknames'", 'to': "orm['contacts.Contact']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nickname': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contacts'", 'to': "orm['contacts.Nickname']"}),
             'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
@@ -122,6 +122,13 @@ class Migration(DataMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'phone': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contacts'", 'to': "orm['contacts.Phone']"})
+        },
+        'contacts.contactwebsite': {
+            'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'website'],)", 'object_name': 'ContactWebsite'},
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'websites_new'", 'to': "orm['contacts.Contact']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'website': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contacts'", 'to': "orm['contacts.Website']"})
         },
         'contacts.email': {
             'Meta': {'object_name': 'Email'},
@@ -138,7 +145,6 @@ class Migration(DataMigration):
         },
         'contacts.nickname': {
             'Meta': {'object_name': 'Nickname'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'nicknames'", 'to': "orm['contacts.Contact']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'blank': 'True'})
         },

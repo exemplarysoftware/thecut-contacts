@@ -191,3 +191,37 @@ class ContactPhoneQuerySet(models.query.QuerySet):
         queryset = self.order_by('order')[:1]
         return queryset[0].phone if queryset else None
 
+
+class ContactWebsiteQuerySet(models.query.QuerySet):
+    
+    def websites(self):
+        """Return ordered QuerySet of related ``Website`` objects.
+        
+        :returns: Filtered QuerySet.
+        :rtype: QuerySet instance.
+        
+        """
+        from thecut.contacts.models import Website
+        return Website.objects.filter(contacts__in=self).order_by(
+            'contacts__order')
+    
+    def contacts(self):
+        """Return related ``Contact`` objects.
+        
+        :returns: Filtered AbstractContactQuerySet.
+        :rtype: AbstractContactQuerySet instance.
+        
+        """
+        from thecut.contacts.models import Contact
+        return Contact.objects.filter(websites__in=self)
+    
+    def get_first(self):
+        """Return the first ``Website`` object.
+        
+        :returns: First Website object.
+        :rtype: Website instance or None.
+        
+        """
+        queryset = self.order_by('order')[:1]
+        return queryset[0].website if queryset else None
+

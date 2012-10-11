@@ -4,11 +4,7 @@ from django.db import models
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
-from thecut.contacts import receivers, settings
-from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
-    AbstractContactQuerySet, ContactAddressQuerySet, ContactEmailQuerySet,
-    ContactInstantMessengerHandleQuerySet, ContactNicknameQuerySet,
-    ContactPhoneQuerySet)
+from thecut.contacts import querysets, receivers, settings
 import re
 import warnings
 
@@ -143,7 +139,7 @@ class AbstractWebsite(models.Model):
 
 class Website(AbstractWebsite):
     
-    contact = models.ForeignKey('contacts.Contact', related_name='websites')
+    pass
 
 
 class AbstractContactGroup(models.Model):
@@ -161,7 +157,7 @@ class AbstractContactGroup(models.Model):
     updated_by = models.ForeignKey('auth.User', editable=False,
         related_name='+')
     objects = PassThroughManager().for_queryset_class(
-        AbstractContactGroupQuerySet)()
+        querysets.AbstractContactGroupQuerySet)()
     
     class Meta(object):
         abstract = True
@@ -197,7 +193,8 @@ class AbstractContact(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     updated_by = models.ForeignKey('auth.User', editable=False,
         related_name='+')
-    objects = PassThroughManager().for_queryset_class(AbstractContactQuerySet)()
+    objects = PassThroughManager().for_queryset_class(
+        querysets.AbstractContactQuerySet)()
     
     class Meta(object):
         abstract = True
@@ -261,7 +258,8 @@ class ContactAddress(models.Model):
     contact = models.ForeignKey('contacts.Contact', related_name='addresses')
     address = models.ForeignKey('contacts.Address', related_name='contacts')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(ContactAddressQuerySet)()
+    objects = PassThroughManager().for_queryset_class(
+        querysets.ContactAddressQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -278,7 +276,8 @@ class ContactEmail(models.Model):
     contact = models.ForeignKey('contacts.Contact', related_name='emails')
     email = models.ForeignKey('contacts.Email', related_name='contacts')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(ContactEmailQuerySet)()
+    objects = PassThroughManager().for_queryset_class(
+        querysets.ContactEmailQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -298,7 +297,7 @@ class ContactInstantMessengerHandle(models.Model):
         'contacts.InstantMessengerHandle', related_name='contacts')
     order = models.PositiveIntegerField(default=0)
     objects = PassThroughManager().for_queryset_class(
-        ContactInstantMessengerHandleQuerySet)()
+        querysets.ContactInstantMessengerHandleQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -316,7 +315,8 @@ class ContactNickname(models.Model):
     contact = models.ForeignKey('contacts.Contact', related_name='nicknames')
     nickname = models.ForeignKey('contacts.Nickname', related_name='contacts')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(ContactNicknameQuerySet)()
+    objects = PassThroughManager().for_queryset_class(
+        querysets.ContactNicknameQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -333,7 +333,8 @@ class ContactPhone(models.Model):
     contact = models.ForeignKey('contacts.Contact', related_name='phones')
     phone = models.ForeignKey('contacts.Phone', related_name='contacts')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(ContactPhoneQuerySet)()
+    objects = PassThroughManager().for_queryset_class(
+        querysets.ContactPhoneQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -343,6 +344,24 @@ class ContactPhone(models.Model):
         return unicode(self.phone)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactPhone)
+
+
+class ContactWebsite(models.Model):
+    
+    contact = models.ForeignKey('contacts.Contact', related_name='websites')
+    website = models.ForeignKey('contacts.Website', related_name='contacts')
+    order = models.PositiveIntegerField(default=0)
+    objects = PassThroughManager().for_queryset_class(
+        querysets.ContactWebsiteQuerySet)()
+    
+    class Meta(object):
+        ordering = ['order']
+        unique_together = ['contact', 'website']
+    
+    def __unicode__(self):
+        return unicode(self.website)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactWebsite)
 
 
 class PersonOrganisation(models.Model):

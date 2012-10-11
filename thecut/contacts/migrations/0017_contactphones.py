@@ -18,7 +18,7 @@ class Migration(DataMigration):
             phone = contact_phone.phone
             phone.contact = contact_phone.contact
             phone.save()
-            phone_email.delete()
+            contact_phone.delete()
 
     models = {
         'auth.group': {
