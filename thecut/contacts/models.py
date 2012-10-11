@@ -7,7 +7,8 @@ from tagging.fields import TagField
 from thecut.contacts import receivers, settings
 from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
     AbstractContactQuerySet, ContactAddressQuerySet, ContactEmailQuerySet,
-    ContactInstantMessengerHandleQuerySet, ContactPhoneQuerySet)
+    ContactInstantMessengerHandleQuerySet, ContactNicknameQuerySet,
+    ContactPhoneQuerySet)
 import re
 import warnings
 
@@ -95,7 +96,7 @@ class AbstractNickname(models.Model):
 
 class Nickname(AbstractNickname):
     
-    contact = models.ForeignKey('contacts.Contact', related_name='nicknames')
+    pass
 
 
 class AbstractPhone(models.Model):
@@ -229,7 +230,11 @@ class AbstractContact(models.Model):
         return self.emails.get_first()
     
     def get_nickname(self):
-        return self._get_first_m2m_item(self.nicknames)
+        """Deprecated - instead use 'nicknames.get_first()'."""
+        warnings.warn('\'get_nickname\' method is deprecated - use ' \
+            '\'nicknames.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.nicknames.get_first()
     
     def get_phone(self):
         """Deprecated - instead use 'phones.get_first()'."""
@@ -304,6 +309,23 @@ class ContactInstantMessengerHandle(models.Model):
 
 models.signals.pre_save.connect(receivers.set_order,
     sender=ContactInstantMessengerHandle)
+
+
+class ContactNickname(models.Model):
+    
+    contact = models.ForeignKey('contacts.Contact', related_name='nicknames')
+    nickname = models.ForeignKey('contacts.Nickname', related_name='contacts')
+    order = models.PositiveIntegerField(default=0)
+    objects = PassThroughManager().for_queryset_class(ContactNicknameQuerySet)()
+    
+    class Meta(object):
+        ordering = ['order']
+        unique_together = ['contact', 'nickname']
+    
+    def __unicode__(self):
+        return unicode(self.nickname)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactNickname)
 
 
 class ContactPhone(models.Model):

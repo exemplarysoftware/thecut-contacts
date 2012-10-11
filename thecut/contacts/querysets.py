@@ -124,6 +124,40 @@ class ContactInstantMessengerHandleQuerySet(models.query.QuerySet):
         return queryset[0].instant_messenger_handle if queryset else None
 
 
+class ContactNicknameQuerySet(models.query.QuerySet):
+    
+    def nicknames(self):
+        """Return ordered QuerySet of related ``Nickname`` objects.
+        
+        :returns: Filtered QuerySet.
+        :rtype: QuerySet instance.
+        
+        """
+        from thecut.contacts.models import Nickname
+        return Nickname.objects.filter(contacts__in=self).order_by(
+            'contacts__order')
+    
+    def contacts(self):
+        """Return related ``Contact`` objects.
+        
+        :returns: Filtered AbstractContactQuerySet.
+        :rtype: AbstractContactQuerySet instance.
+        
+        """
+        from thecut.contacts.models import Contact
+        return Contact.objects.filter(nicknames__in=self)
+    
+    def get_first(self):
+        """Return the first ``Nickname`` object.
+        
+        :returns: First Nickname object.
+        :rtype: Nickname instance or None.
+        
+        """
+        queryset = self.order_by('order')[:1]
+        return queryset[0].nickname if queryset else None
+
+
 class ContactPhoneQuerySet(models.query.QuerySet):
     
     def phones(self):
