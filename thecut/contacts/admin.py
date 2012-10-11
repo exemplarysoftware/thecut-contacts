@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
-from thecut.contacts.models import (Address, ContactGroup, Email,
+from thecut.contacts.models import (ContactAddress, ContactGroup, Email,
     InstantMessengerHandle, Nickname, Organisation, Person, PersonOrganisation,
     Phone, Website)
 
@@ -58,11 +58,11 @@ class NicknameInline(admin.TabularInline):
 
 class AddressInline(admin.StackedInline):
     extra = 0
-    fieldsets = [(None, {'fields': ['name', ('street', 'city'),
-        ('state', 'postcode'), 'country']})]
-    formfield_overrides = {models.TextField: {'widget': TextInput(
-        attrs={'class': 'vTextField'})}}
-    model = Address
+    #fieldsets = [(None, {'fields': ['name', ('street', 'city'),
+    #    ('state', 'postcode'), 'country']})]
+    #formfield_overrides = {models.TextField: {'widget': TextInput(
+    #    attrs={'class': 'vTextField'})}}
+    model = ContactAddress
 
 
 class EmailInline(admin.TabularInline):

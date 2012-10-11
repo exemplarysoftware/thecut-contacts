@@ -4,9 +4,9 @@ from django.db import models
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
-from thecut.contacts import settings
+from thecut.contacts import receivers, settings
 from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
-    AbstractContactQuerySet)
+    AbstractContactQuerySet, ContactAddressQuerySet)
 import re
 
 
@@ -32,7 +32,7 @@ class AbstractAddress(models.Model):
 
 
 class Address(AbstractAddress):
-    contact = models.ForeignKey('contacts.Contact', related_name='addresses')
+    pass
 
 
 class AbstractEmail(models.Model):
@@ -217,11 +217,29 @@ class AbstractContact(models.Model):
 
 
 class Contact(AbstractContact):
+    
     groups = models.ManyToManyField('contacts.ContactGroup',
         related_name='contacts', blank=True, null=True)
     
     class Meta(AbstractContact.Meta):
         pass
+
+
+class ContactAddress(models.Model):
+    
+    contact = models.ForeignKey('contacts.Contact', related_name='addresses')
+    address = models.ForeignKey('contacts.Address', related_name='contacts')
+    order = models.PositiveIntegerField(default=0)
+    objects = PassThroughManager().for_queryset_class(ContactAddressQuerySet)()
+    
+    class Meta(object):
+        ordering = ['order']
+        unique_together = ['contact', 'address']
+    
+    def __unicode__(self):
+        return unicode(self.address)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactAddress)
 
 
 class PersonOrganisation(models.Model):
