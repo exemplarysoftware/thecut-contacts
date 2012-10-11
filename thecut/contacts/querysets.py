@@ -44,6 +44,16 @@ class ContactAddressQuerySet(models.query.QuerySet):
         """
         from thecut.contacts.models import Contact
         return Contact.objects.filter(addresses__in=self)
+    
+    def get_first(self):
+        """Return the first ``Address`` object.
+        
+        :returns: First Address object.
+        :rtype: Address instance or None.
+        
+        """
+        queryset = self.order_by('order')[:1]
+        return queryset[0].address if queryset else None
 
 
 class ContactEmailQuerySet(models.query.QuerySet):
@@ -68,6 +78,16 @@ class ContactEmailQuerySet(models.query.QuerySet):
         """
         from thecut.contacts.models import Contact
         return Contact.objects.filter(emails__in=self)
+    
+    def get_first(self):
+        """Return the first ``Email`` object.
+        
+        :returns: First Email object.
+        :rtype: Email instance or None.
+        
+        """
+        queryset = self.order_by('order')[:1]
+        return queryset[0].email if queryset else None
 
 
 class ContactInstantMessengerHandleQuerySet(models.query.QuerySet):
@@ -92,4 +112,14 @@ class ContactInstantMessengerHandleQuerySet(models.query.QuerySet):
         """
         from thecut.contacts.models import Contact
         return Contact.objects.filter(instant_messenger_handles__in=self)
+    
+    def get_first(self):
+        """Return the first ``InstantMessengerHandle`` object.
+        
+        :returns: First InstantMessengerHandle object.
+        :rtype: InstantMessengerHandle instance or None.
+        
+        """
+        queryset = self.order_by('order')[:1]
+        return queryset[0].instant_messenger_handle if queryset else None
 
