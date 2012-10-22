@@ -3,13 +3,14 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
+from thecut.contacts import forms, formsets
 from thecut.contacts.models import (ContactAddress, ContactGroup, ContactEmail,
     ContactInstantMessengerHandle, ContactNickname, ContactPhone, Organisation,
     Person, PersonOrganisation, ContactWebsite)
 
 
 def email(obj):
-    email = obj.get_email()
+    email = obj.emails.get_first()
     return email and '<a href="mailto:%(email)s" ' \
         'title="%(title)s">%(email)s</a>' %(
         {'email': email, 'title': email.name}) or ''
@@ -17,7 +18,7 @@ email.allow_tags = True
 
 
 def location(obj):
-    address = obj.get_address()
+    address = obj.addresses.get_first()
     city = address and address.city or ''
     country = address and address.country or ''
     
@@ -28,7 +29,7 @@ def location(obj):
 
 
 def phone(obj):
-    phone = obj.get_phone()
+    phone = obj.phones.get_first()
     return phone or ''
 
 
@@ -51,43 +52,65 @@ preview_image.short_description = 'Image'
 preview_image.allow_tags = True
 
 
-class NicknameInline(admin.TabularInline):
+class ContactAddressInline(admin.StackedInline):
     extra = 0
-    model = ContactNickname
-
-
-class AddressInline(admin.StackedInline):
-    extra = 0
-    #fieldsets = [(None, {'fields': ['name', ('street', 'city'),
-    #    ('state', 'postcode'), 'country']})]
-    #formfield_overrides = {models.TextField: {'widget': TextInput(
-    #    attrs={'class': 'vTextField'})}}
+    fieldsets = [(None, {'fields': ['name', ('street', 'city'),
+        ('state', 'postcode'), 'country']})]
+    form = forms.ContactAddressInlineForm
+    formset = formsets.ContactAddressInlineFormSet
     model = ContactAddress
+    verbose_name = 'address'
+    verbose_name_plural = 'addresses'
 
 
-class EmailInline(admin.TabularInline):
+class ContactEmailInline(admin.TabularInline):
     extra = 0
+    fields = ['name', 'value']
+    form = forms.ContactEmailInlineForm
+    formset = formsets.ContactEmailInlineFormSet
     model = ContactEmail
-    verbose_name_plural = 'Email address'
-    verbose_name_plural = 'Email addresses'
+    verbose_name = 'email address'
+    verbose_name_plural = 'email addresses'
 
 
-class InstantMessengerHandleInline(admin.TabularInline):
+class ContactInstantMessengerHandleInline(admin.TabularInline):
     extra = 0
+    fields = ['name', 'value', 'type']
+    form = forms.ContactInstantMessengerHandleInlineForm
+    formset = formsets.ContactInstantMessengerHandleInlineFormSet
     model = ContactInstantMessengerHandle
-    verbose_name_plural = 'Instant messaging'
+    verbose_name = 'instant messenger handle'
+    verbose_name_plural = 'instant messenger handles'
 
 
-class PhoneInline(admin.TabularInline):
+class ContactNicknameInline(admin.TabularInline):
     extra = 0
+    fields = ['value']
+    form = forms.ContactNicknameInlineForm
+    formset = formsets.ContactNicknameInlineFormSet
+    model = ContactNickname
+    verbose_name = 'nickname'
+    verbose_name_plural = 'nicknames'
+
+
+class ContactPhoneInline(admin.TabularInline):
+    extra = 0
+    fields = ['name', 'value', 'type']
+    form = forms.ContactPhoneInlineForm
+    formset = formsets.ContactPhoneInlineFormSet
     model = ContactPhone
-    verbose_name = 'Phone number'
-    verbose_name_plural = 'Phone numbers'
+    verbose_name = 'phone number'
+    verbose_name_plural = 'phone numbers'
 
 
-class WebsiteInline(admin.TabularInline):
+class ContactWebsiteInline(admin.TabularInline):
     extra = 0
+    fields = ['name', 'value']
+    form = forms.ContactWebsiteInlineForm
+    formset = formsets.ContactWebsiteInlineFormSet
     model = ContactWebsite
+    verbose_name = 'website'
+    verbose_name_plural = 'websites'
 
 
 class PersonOrganisationInline(admin.TabularInline):
@@ -126,9 +149,9 @@ class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     list_filter = ['organisations', 'groups']
     readonly_fields = ['created_at', 'created_by',
         'updated_at', 'updated_by']
-    inlines = [PersonOrganisationInline, NicknameInline, AddressInline,
-        EmailInline, PhoneInline, InstantMessengerHandleInline,
-        WebsiteInline]
+    inlines = [PersonOrganisationInline, ContactNicknameInline,
+        ContactAddressInline, ContactEmailInline, ContactPhoneInline,
+        ContactInstantMessengerHandleInline, ContactWebsiteInline]
     search_fields = ['first_name', 'last_name', 'nicknames__value',
         'emails__value', 'phones__value']
 
@@ -147,9 +170,9 @@ class OrganisationAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     list_filter = ['groups']
     readonly_fields = ['created_at', 'created_by',
         'updated_at', 'updated_by']
-    inlines = [NicknameInline, AddressInline, EmailInline, PhoneInline,
-        InstantMessengerHandleInline, WebsiteInline,
-        OrganisationPersonInline]
+    inlines = [ContactNicknameInline, ContactAddressInline, ContactEmailInline,
+        ContactPhoneInline, ContactInstantMessengerHandleInline,
+        ContactWebsiteInline, OrganisationPersonInline]
     search_fields = ['name', 'abn', 'nicknames__value',
         'emails__value', 'phones__value']
 
