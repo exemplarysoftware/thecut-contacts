@@ -371,6 +371,7 @@ class PersonOrganisation(models.Model):
         related_name='positions')
     title = models.CharField(max_length=100, blank=True)
     department = models.CharField(max_length=100, blank=True)
+    order = models.PositiveIntegerField(default=0)
     
     class Meta:
         verbose_name = 'employment'
@@ -386,6 +387,9 @@ class PersonOrganisation(models.Model):
             return '%s: %s' %(organisation, person)
         else:
             return organisation or person
+
+models.signals.pre_save.connect(receivers.set_personorganisation_order,
+    sender=PersonOrganisation)
 
 
 class AbstractPerson(Contact):
