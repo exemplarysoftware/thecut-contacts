@@ -4,7 +4,8 @@ from django.db import models
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
-from thecut.contacts import querysets, receivers, settings
+from thecut.contacts import receivers, settings
+from thecut.contacts.querysets import ActiveFeaturedQuerySet, QuerySet
 import re
 import warnings
 
@@ -18,9 +19,11 @@ class AbstractAddress(models.Model):
     postcode = models.CharField(max_length=30, db_index=True, blank=True)
     country = CountryField(default=settings.DEFAULT_COUNTRY, db_index=True,
         blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
         abstract = True
+        ordering = ['contact_addresses__order']
     
     def __unicode__(self):
         return self.address
@@ -42,9 +45,11 @@ class AbstractEmail(models.Model):
     name = models.CharField(max_length=50, blank=True)
     value = models.EmailField('Email', max_length=75, db_index=True,
         blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
         abstract = True
+        ordering = ['contact_emails__order']
     
     def __unicode__(self):
         return self.value
@@ -66,9 +71,11 @@ class AbstractInstantMessengerHandle(models.Model):
     value = models.CharField('ID', max_length=75, db_index=True, blank=True)
     type = models.CharField(max_length=50, db_index=True,
         choices=settings.INSTANT_MESSENGER_CHOICES, blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
         abstract = True
+        ordering = ['contact_instant_messenger_handles__order']
     
     def __unicode__(self):
         return self.value
@@ -82,9 +89,11 @@ class InstantMessengerHandle(AbstractInstantMessengerHandle):
 class AbstractNickname(models.Model):
     
     value = models.CharField('Name', max_length=75, db_index=True, blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
         abstract = True
+        ordering = ['contact_nicknames__order']
     
     def __unicode__(self):
         return self.value
@@ -102,9 +111,11 @@ class AbstractPhone(models.Model):
         blank=True)
     type = models.CharField(max_length=50, db_index=True,
         choices=settings.PHONE_TYPE_CHOICES, blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
         abstract = True
+        ordering = ['contact_phones__order']
     
     def __unicode__(self):
         return self.value
@@ -124,9 +135,11 @@ class AbstractWebsite(models.Model):
     
     name = models.CharField(max_length=50, blank=True)
     value = models.URLField('URL', max_length=255, db_index=True, blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
         abstract = True
+        ordering = ['contact_websites__order']
     
     def __unicode__(self):
         return self.value
@@ -156,8 +169,7 @@ class AbstractContactGroup(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     updated_by = models.ForeignKey('auth.User', editable=False,
         related_name='+')
-    objects = PassThroughManager().for_queryset_class(
-        querysets.AbstractContactGroupQuerySet)()
+    objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
     
     class Meta(object):
         abstract = True
@@ -193,8 +205,7 @@ class AbstractContact(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     updated_by = models.ForeignKey('auth.User', editable=False,
         related_name='+')
-    objects = PassThroughManager().for_queryset_class(
-        querysets.AbstractContactQuerySet)()
+    objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
     
     class Meta(object):
         abstract = True
@@ -202,15 +213,29 @@ class AbstractContact(models.Model):
         ordering = ['-created_at']
     
     def is_active(self):
-        return self in self.__class__.objects.active().filter(pk=self.pk)
+        return self.__class__.objects.active().filter(pk=self.pk).exists()
+
+
+class Contact(AbstractContact):
     
-    def _get_first_m2m_item(self, m2m_field):
-        queryset = m2m_field.all()
-        try:
-            item = queryset[0]
-        except IndexError:
-            item = None
-        return item
+    groups = models.ManyToManyField('contacts.ContactGroup',
+        related_name='contacts', blank=True, null=True)
+    addresses = models.ManyToManyField('contacts.Address', related_name='+',
+        through='contacts.ContactAddress', blank=True, null=True)
+    emails = models.ManyToManyField('contacts.Email', related_name='+',
+        through='contacts.ContactEmail', blank=True, null=True)
+    instant_messenger_handles = models.ManyToManyField(
+        'contacts.InstantMessengerHandle', related_name='+',
+        through='contacts.ContactInstantMessengerHandle', blank=True, null=True)
+    nicknames = models.ManyToManyField('contacts.Nickname', related_name='+',
+        through='contacts.ContactNickname', blank=True, null=True)
+    phones = models.ManyToManyField('contacts.Phone', related_name='+',
+        through='contacts.ContactPhone', blank=True, null=True)
+    websites = models.ManyToManyField('contacts.Website', related_name='+',
+        through='contacts.ContactWebsite', blank=True, null=True)
+    
+    class Meta(AbstractContact.Meta):
+        pass
     
     def get_address(self):
         """Deprecated - instead use 'addresses.get_first()'."""
@@ -241,25 +266,19 @@ class AbstractContact(models.Model):
         return self.phones.get_first()
     
     def get_website(self):
-        return self._get_first_m2m_item(self.websites)
-
-
-class Contact(AbstractContact):
-    
-    groups = models.ManyToManyField('contacts.ContactGroup',
-        related_name='contacts', blank=True, null=True)
-    
-    class Meta(AbstractContact.Meta):
-        pass
+        """Deprecated - instead use 'websites.get_first()'."""
+        warnings.warn('\'get_website\' method is deprecated - use ' \
+            '\'websites.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.websites.get_first()
 
 
 class ContactAddress(models.Model):
     
-    contact = models.ForeignKey('contacts.Contact', related_name='addresses')
-    address = models.ForeignKey('contacts.Address', related_name='contacts')
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    address = models.ForeignKey('contacts.Address',
+        related_name='contact_addresses')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ContactAddressQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -273,11 +292,9 @@ models.signals.pre_save.connect(receivers.set_order, sender=ContactAddress)
 
 class ContactEmail(models.Model):
     
-    contact = models.ForeignKey('contacts.Contact', related_name='emails')
-    email = models.ForeignKey('contacts.Email', related_name='contacts')
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    email = models.ForeignKey('contacts.Email', related_name='contact_emails')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ContactEmailQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -291,13 +308,11 @@ models.signals.pre_save.connect(receivers.set_order, sender=ContactEmail)
 
 class ContactInstantMessengerHandle(models.Model):
     
-    contact = models.ForeignKey('contacts.Contact',
-        related_name='instant_messenger_handles')
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
     instant_messenger_handle = models.ForeignKey(
-        'contacts.InstantMessengerHandle', related_name='contacts')
+        'contacts.InstantMessengerHandle',
+        related_name='contact_instant_messenger_handles')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ContactInstantMessengerHandleQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -312,11 +327,10 @@ models.signals.pre_save.connect(receivers.set_order,
 
 class ContactNickname(models.Model):
     
-    contact = models.ForeignKey('contacts.Contact', related_name='nicknames')
-    nickname = models.ForeignKey('contacts.Nickname', related_name='contacts')
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    nickname = models.ForeignKey('contacts.Nickname',
+        related_name='contact_nicknames')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ContactNicknameQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -330,11 +344,9 @@ models.signals.pre_save.connect(receivers.set_order, sender=ContactNickname)
 
 class ContactPhone(models.Model):
     
-    contact = models.ForeignKey('contacts.Contact', related_name='phones')
-    phone = models.ForeignKey('contacts.Phone', related_name='contacts')
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    phone = models.ForeignKey('contacts.Phone', related_name='contact_phones')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ContactPhoneQuerySet)()
     
     class Meta(object):
         ordering = ['order']
@@ -348,11 +360,10 @@ models.signals.pre_save.connect(receivers.set_order, sender=ContactPhone)
 
 class ContactWebsite(models.Model):
     
-    contact = models.ForeignKey('contacts.Contact', related_name='websites')
-    website = models.ForeignKey('contacts.Website', related_name='contacts')
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    website = models.ForeignKey('contacts.Website',
+        related_name='contact_websites')
     order = models.PositiveIntegerField(default=0)
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ContactWebsiteQuerySet)()
     
     class Meta(object):
         ordering = ['order']
