@@ -4,7 +4,7 @@ from django.db import models
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
-from thecut.contacts import receivers, settings
+from thecut.contacts import choices, receivers, settings
 from thecut.contacts.querysets import ActiveFeaturedQuerySet, QuerySet
 import re
 import warnings
@@ -70,7 +70,7 @@ class AbstractInstantMessengerHandle(models.Model):
     name = models.CharField(max_length=50, blank=True)
     value = models.CharField('ID', max_length=75, db_index=True, blank=True)
     type = models.CharField(max_length=50, db_index=True,
-        choices=settings.INSTANT_MESSENGER_CHOICES, blank=True)
+        choices=choices.INSTANT_MESSENGER_TYPES, blank=True)
     objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
@@ -110,7 +110,7 @@ class AbstractPhone(models.Model):
     value = models.CharField('Number', max_length=75, db_index=True,
         blank=True)
     type = models.CharField(max_length=50, db_index=True,
-        choices=settings.PHONE_TYPE_CHOICES, blank=True)
+        choices=choices.PHONE_TYPES, blank=True)
     objects = PassThroughManager().for_queryset_class(QuerySet)()
     
     class Meta(object):
@@ -410,6 +410,8 @@ class AbstractPerson(Contact):
     last_name = models.CharField(max_length=75, db_index=True, blank=True)
     suffix = models.CharField(max_length=250, blank=True)
     date_of_birth = models.DateField(blank=True, null=True)
+    gender = models.CharField(max_length=1, blank=True, default='',
+        choices=choices.GENDERS)
     
     class Meta(Contact.Meta):
         abstract = True

@@ -139,7 +139,7 @@ class CreatedUpdatedMixin(object):
 class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', ('first_name', 'last_name'),
-            'suffix', 'image', 'date_of_birth', 'biography', 'notes',
+            'suffix', 'image', 'date_of_birth', 'gender', 'biography', 'notes',
             'groups', 'tags']}),
         ('Publishing', {'fields': ['is_enabled', 'is_featured',
             ('created_at', 'created_by'), ('updated_at', 'updated_by')],

@@ -2,7 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 from django import forms
 from django_countries.countries import COUNTRIES
-from thecut.contacts import settings
+from thecut.contacts import choices, settings
 from thecut.contacts.models import (Address, ContactAddress, Email,
     ContactEmail, InstantMessengerHandle, ContactInstantMessengerHandle,
     Nickname, ContactNickname, Phone, ContactPhone, Website, ContactWebsite)
@@ -75,7 +75,7 @@ class ContactInstantMessengerHandleInlineForm(ContactRelatedInlineForm):
     name = forms.CharField(label='Name', max_length=50, required=False)
     value = forms.CharField(label='ID', max_length=75)
     type = forms.ChoiceField(label='Type',
-        choices=[('', '')]+settings.INSTANT_MESSENGER_CHOICES, required=False)
+        choices=[('', '')]+choices.INSTANT_MESSENGER_TYPES, required=False)
     
     _related_fields = ['name', 'value', 'type']
     _related_name = 'instant_messenger_handle'
@@ -104,7 +104,7 @@ class ContactPhoneInlineForm(ContactRelatedInlineForm):
     name = forms.CharField(label='Name', max_length=50, required=False)
     value = forms.CharField(label='Number', max_length=75)
     type = forms.ChoiceField(label='Type',
-        choices=[('', '')]+settings.PHONE_TYPE_CHOICES, required=False)
+        choices=[('', '')]+choices.PHONE_TYPES, required=False)
     
     _related_fields = ['name', 'value', 'type']
     _related_name = 'phone'
