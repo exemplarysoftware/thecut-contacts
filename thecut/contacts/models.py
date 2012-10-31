@@ -215,6 +215,9 @@ class AbstractContact(models.Model):
     def is_active(self):
         return self.__class__.objects.active().filter(pk=self.pk).exists()
 
+models.signals.pre_save.connect(receivers.check_and_delete_image)
+models.signals.pre_delete.connect(receivers.delete_image)
+
 
 class Contact(AbstractContact):
     

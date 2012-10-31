@@ -16,3 +16,24 @@ def set_personorganisation_order(*args, **kwargs):
     kwargs.setdefault('contact_field', 'person')
     set_order(*args, **kwargs)
 
+
+def delete_image(sender, instance, **kwargs):
+    """Deletes the image from the instance (without resaving the instance)."""
+    from thecut.contacts.models import AbstractContact
+    if isinstance(instance, AbstractContact):
+        instance.image.delete(save=False)
+
+
+def check_and_delete_image(sender, instance, raw, **kwargs):
+    """If the image has changed for an instance, delete the 'old' image."""
+    if not raw and instance.pk:
+        from thecut.contacts.models import AbstractContact
+        if isinstance(instance, AbstractContact):
+            try:
+                existing = sender.objects.get(pk=instance.pk)
+            except sender.objects.DoesNotExist():
+                pass
+            else:
+                if existing.image != instance.image:
+                    delete_image(sender=sender, instance=existing)
+
