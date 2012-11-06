@@ -13,3 +13,6 @@ INSTANT_MESSENGER_TYPES = getattr(settings, 'CONTACTS_INSTANT_MESSENGER_TYPES',
 PHONE_TYPES = getattr(settings, 'CONTACTS_PHONE_TYPES', ['Landline', 'Mobile',
     'Fax', 'VOIP'])
 
+DELETE_RELATED_CONTACT_DETAILS = getattr(settings,
+    'CONTACTS_DELETE_RELATED_CONTACT_DETAILS', True)
+

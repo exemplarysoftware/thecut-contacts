@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 from django.db.models import Max
 from django.dispatch import receiver
+from thecut.contacts import settings
 
 
 def set_order(sender, instance, raw, contact_field='contact', **kwargs):
@@ -21,7 +22,8 @@ def delete_image(sender, instance, **kwargs):
     """Deletes the image from the instance (without resaving the instance)."""
     from thecut.contacts.models import AbstractContact
     if isinstance(instance, AbstractContact):
-        instance.image.delete(save=False)
+        if instance.image:
+            instance.image.delete(save=False)
 
 
 def check_and_delete_image(sender, instance, raw, **kwargs):
@@ -36,4 +38,39 @@ def check_and_delete_image(sender, instance, raw, **kwargs):
             else:
                 if existing.image != instance.image:
                     delete_image(sender=sender, instance=existing)
+
+
+def delete_related_detail(sender, instance, related_name):
+    """Delete related contact detail if it is not linked to other contacts."""
+    
+    if settings.DELETE_RELATED_CONTACT_DETAILS:
+        related_obj = getattr(instance, related_name)
+        query = {related_name: related_obj}
+        if not sender.objects.filter(**query).exists():
+            related_obj.delete()
+
+
+def delete_related_address(sender, instance, **kwargs):
+    return delete_related_detail(sender=sender, instance=instance,
+        related_name='address')
+
+def delete_related_email(sender, instance, **kwargs):
+    return delete_related_detail(sender=sender, instance=instance,
+        related_name='email')
+
+def delete_related_instant_messenger_handle(sender, instance, **kwargs):
+    return delete_related_detail(sender=sender, instance=instance,
+        related_name='instant_messenger_handle')
+
+def delete_related_nickname(sender, instance, **kwargs):
+    return delete_related_detail(sender=sender, instance=instance,
+        related_name='nickname')
+
+def delete_related_phone(sender, instance, **kwargs):
+    return delete_related_detail(sender=sender, instance=instance,
+        related_name='phone')
+
+def delete_related_website(sender, instance, **kwargs):
+    return delete_related_detail(sender=sender, instance=instance,
+        related_name='website')
 

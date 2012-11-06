@@ -291,6 +291,8 @@ class ContactAddress(models.Model):
         return unicode(self.address)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactAddress)
+models.signals.post_delete.connect(receivers.delete_related_address,
+    sender=ContactAddress)
 
 
 class ContactEmail(models.Model):
@@ -307,6 +309,8 @@ class ContactEmail(models.Model):
         return unicode(self.email)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactEmail)
+models.signals.post_delete.connect(receivers.delete_related_email,
+    sender=ContactEmail)
 
 
 class ContactInstantMessengerHandle(models.Model):
@@ -326,6 +330,9 @@ class ContactInstantMessengerHandle(models.Model):
 
 models.signals.pre_save.connect(receivers.set_order,
     sender=ContactInstantMessengerHandle)
+models.signals.post_delete.connect(
+    receivers.delete_related_instant_messenger_handle,
+    sender=ContactInstantMessengerHandle)
 
 
 class ContactNickname(models.Model):
@@ -343,6 +350,8 @@ class ContactNickname(models.Model):
         return unicode(self.nickname)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactNickname)
+models.signals.post_delete.connect(receivers.delete_related_nickname,
+    sender=ContactNickname)
 
 
 class ContactPhone(models.Model):
@@ -359,6 +368,8 @@ class ContactPhone(models.Model):
         return unicode(self.phone)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactPhone)
+models.signals.post_delete.connect(receivers.delete_related_phone,
+    sender=ContactPhone)
 
 
 class ContactWebsite(models.Model):
@@ -376,6 +387,8 @@ class ContactWebsite(models.Model):
         return unicode(self.website)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactWebsite)
+models.signals.post_delete.connect(receivers.delete_related_website,
+    sender=ContactWebsite)
 
 
 class PersonOrganisation(models.Model):

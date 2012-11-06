@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
-from thecut.contacts import forms, formsets
+from thecut.contacts import forms
 from thecut.contacts.models import (ContactAddress, ContactGroup, ContactEmail,
     ContactInstantMessengerHandle, ContactNickname, ContactPhone, Organisation,
     Person, PersonOrganisation, ContactWebsite)
@@ -57,7 +57,6 @@ class ContactAddressInline(admin.StackedInline):
     fieldsets = [(None, {'fields': ['name', ('street', 'city'),
         ('state', 'postcode'), 'country']})]
     form = forms.ContactAddressInlineForm
-    formset = formsets.ContactAddressInlineFormSet
     model = ContactAddress
     verbose_name = 'address'
     verbose_name_plural = 'addresses'
@@ -67,7 +66,6 @@ class ContactEmailInline(admin.TabularInline):
     extra = 0
     fields = ['name', 'value']
     form = forms.ContactEmailInlineForm
-    formset = formsets.ContactEmailInlineFormSet
     model = ContactEmail
     verbose_name = 'email address'
     verbose_name_plural = 'email addresses'
@@ -77,7 +75,6 @@ class ContactInstantMessengerHandleInline(admin.TabularInline):
     extra = 0
     fields = ['name', 'value', 'type']
     form = forms.ContactInstantMessengerHandleInlineForm
-    formset = formsets.ContactInstantMessengerHandleInlineFormSet
     model = ContactInstantMessengerHandle
     verbose_name = 'instant messenger handle'
     verbose_name_plural = 'instant messenger handles'
@@ -87,7 +84,6 @@ class ContactNicknameInline(admin.TabularInline):
     extra = 0
     fields = ['value']
     form = forms.ContactNicknameInlineForm
-    formset = formsets.ContactNicknameInlineFormSet
     model = ContactNickname
     verbose_name = 'nickname'
     verbose_name_plural = 'nicknames'
@@ -97,7 +93,6 @@ class ContactPhoneInline(admin.TabularInline):
     extra = 0
     fields = ['name', 'value', 'type']
     form = forms.ContactPhoneInlineForm
-    formset = formsets.ContactPhoneInlineFormSet
     model = ContactPhone
     verbose_name = 'phone number'
     verbose_name_plural = 'phone numbers'
@@ -107,7 +102,6 @@ class ContactWebsiteInline(admin.TabularInline):
     extra = 0
     fields = ['name', 'value']
     form = forms.ContactWebsiteInlineForm
-    formset = formsets.ContactWebsiteInlineFormSet
     model = ContactWebsite
     verbose_name = 'website'
     verbose_name_plural = 'websites'
