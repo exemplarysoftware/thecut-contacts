@@ -18,3 +18,8 @@ Add the ``thecut.contacts`` to the project's ``INSTALLED_APPS`` setting::
         'thecut.contacts',
     )
 
+If you would like to run the tests, install the requirements::
+    pip install -r lib/python2.7/site-packages/thecut/contacts/tests/requirements.txt
+
+Then run the tests for the application with::
+    python manage.py test contacts
