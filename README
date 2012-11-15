@@ -13,7 +13,7 @@ virtualenv)::
 
 Add the ``thecut.contacts`` to the project's ``INSTALLED_APPS`` setting::
 
-    INSTALLED_PAGES = (
+    INSTALLED_APPS = (
         ...
         'thecut.contacts',
     )
