@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 from django.dispatch import receiver
 from thecut.contacts import settings
@@ -42,12 +43,16 @@ def check_and_delete_image(sender, instance, raw, **kwargs):
 
 def delete_related_detail(sender, instance, related_name):
     """Delete related contact detail if it is not linked to other contacts."""
-    
+
     if settings.DELETE_RELATED_CONTACT_DETAILS:
-        related_obj = getattr(instance, related_name)
-        query = {related_name: related_obj}
-        if not sender.objects.filter(**query).exists():
-            related_obj.delete()
+        try:
+            related_obj = getattr(instance, related_name)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            query = {related_name: related_obj}
+            if not sender.objects.filter(**query).exists():
+                related_obj.delete()
 
 
 def delete_related_address(sender, instance, **kwargs):
@@ -73,4 +78,3 @@ def delete_related_phone(sender, instance, **kwargs):
 def delete_related_website(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
         related_name='website')
-
