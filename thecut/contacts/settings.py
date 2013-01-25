@@ -3,6 +3,9 @@ from __future__ import absolute_import, unicode_literals
 from django.conf import settings
 
 
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
+
 DEFAULT_COUNTRY = getattr(settings, 'CONTACTS_DEFAULT_COUNTRY', 'AU')
 
 
@@ -15,4 +18,3 @@ PHONE_TYPES = getattr(settings, 'CONTACTS_PHONE_TYPES', ['Landline', 'Mobile',
 
 DELETE_RELATED_CONTACT_DETAILS = getattr(settings,
     'CONTACTS_DELETE_RELATED_CONTACT_DETAILS', True)
-
