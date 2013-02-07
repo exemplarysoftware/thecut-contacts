@@ -422,8 +422,8 @@ models.signals.pre_save.connect(receivers.set_personorganisation_order,
 class AbstractPerson(Contact):
 
     title = models.CharField(max_length=15, blank=True)
-    first_name = models.CharField(max_length=75, db_index=True, blank=True)
-    last_name = models.CharField(max_length=75, db_index=True, blank=True)
+    short_name = models.CharField(max_length=250, db_index=True, blank=True)
+    long_name = models.CharField(max_length=250, db_index=True, blank=True)
     suffix = models.CharField(max_length=250, blank=True)
     date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=1, blank=True, default='',
@@ -431,17 +431,14 @@ class AbstractPerson(Contact):
 
     class Meta(Contact.Meta):
         abstract = True
-        ordering = ['last_name', 'first_name']
+        ordering = ['long_name']
 
     def __unicode__(self):
         return self.name or 'Unnamed'
 
     @property
     def name(self):
-        if self.first_name and self.last_name:
-            return ' '.join([self.first_name, self.last_name])
-        else:
-            return self.first_name or self.last_name or None
+        return self.long_name or self.short_name or None
 
 
 class Person(AbstractPerson):

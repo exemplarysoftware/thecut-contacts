@@ -132,7 +132,7 @@ class CreatedUpdatedMixin(object):
 
 class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     fieldsets = [
-        (None, {'fields': ['title', ('first_name', 'last_name'),
+        (None, {'fields': ['title', ('short_name', 'long_name'),
             'suffix', 'image', 'date_of_birth', 'gender', 'biography', 'notes',
             'groups', 'tags']}),
         ('Publishing', {'fields': ['is_enabled', 'is_featured',
@@ -146,7 +146,7 @@ class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     inlines = [PersonOrganisationInline, ContactNicknameInline,
         ContactAddressInline, ContactEmailInline, ContactPhoneInline,
         ContactInstantMessengerHandleInline, ContactWebsiteInline]
-    search_fields = ['first_name', 'last_name', 'nicknames__value',
+    search_fields = ['short_name', 'long_name', 'nicknames__value',
         'emails__value', 'phones__value']
 
 admin.site.register(Person, PersonAdmin)
