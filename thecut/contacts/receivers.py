@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
-from django.dispatch import receiver
 from thecut.contacts import settings
 
 
@@ -34,7 +33,7 @@ def check_and_delete_image(sender, instance, raw, **kwargs):
         if isinstance(instance, AbstractContact):
             try:
                 existing = sender.objects.get(pk=instance.pk)
-            except sender.objects.DoesNotExist():
+            except sender.objects.DoesNotExist:
                 pass
             else:
                 if existing.image != instance.image:
@@ -57,24 +56,24 @@ def delete_related_detail(sender, instance, related_name):
 
 def delete_related_address(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
-        related_name='address')
+                                 related_name='address')
 
 def delete_related_email(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
-        related_name='email')
+                                 related_name='email')
 
 def delete_related_instant_messenger_handle(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
-        related_name='instant_messenger_handle')
+                                 related_name='instant_messenger_handle')
 
 def delete_related_nickname(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
-        related_name='nickname')
+                                 related_name='nickname')
 
 def delete_related_phone(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
-        related_name='phone')
+                                 related_name='phone')
 
 def delete_related_website(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
-        related_name='website')
+                                 related_name='website')

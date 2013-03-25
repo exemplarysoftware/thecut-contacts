@@ -303,7 +303,7 @@ class ContactAddress(models.Model):
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactAddress)
 models.signals.post_delete.connect(receivers.delete_related_address,
-    sender=ContactAddress)
+                                   sender=ContactAddress)
 
 
 @python_2_unicode_compatible
@@ -322,7 +322,7 @@ class ContactEmail(models.Model):
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactEmail)
 models.signals.post_delete.connect(receivers.delete_related_email,
-    sender=ContactEmail)
+                                   sender=ContactEmail)
 
 
 @python_2_unicode_compatible
@@ -342,7 +342,7 @@ class ContactInstantMessengerHandle(models.Model):
         return '{0}'.format(self.instant_messenger_handle)
 
 models.signals.pre_save.connect(receivers.set_order,
-    sender=ContactInstantMessengerHandle)
+                                sender=ContactInstantMessengerHandle)
 models.signals.post_delete.connect(
     receivers.delete_related_instant_messenger_handle,
     sender=ContactInstantMessengerHandle)
@@ -431,7 +431,7 @@ class PersonOrganisation(models.Model):
             return self.organisation or self.person
 
 models.signals.pre_save.connect(receivers.set_personorganisation_order,
-    sender=PersonOrganisation)
+                                sender=PersonOrganisation)
 
 
 @python_2_unicode_compatible

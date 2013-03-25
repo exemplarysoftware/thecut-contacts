@@ -8,7 +8,6 @@ FEMALE = 'F'
 GENDERS = [(MALE, 'Male'), (FEMALE, 'Female')]
 
 INSTANT_MESSENGER_TYPES = [(value, value) for value in
-    settings.INSTANT_MESSENGER_TYPES]
+                           settings.INSTANT_MESSENGER_TYPES]
 
 PHONE_TYPES = [(value, value) for value in settings.PHONE_TYPES]
-
