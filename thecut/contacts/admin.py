@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.forms import TextInput
 from thecut.authorship.admin import AuthorshipMixin
@@ -13,21 +14,18 @@ from thecut.contacts.models import (
 
 def email(obj):
     email = obj.emails.get_first()
-    return email and '<a href="mailto:%(email)s" ' \
-        'title="%(title)s">%(email)s</a>' %(
-        {'email': email, 'title': email.name}) or ''
+    return email and '<a href="mailto:{0}" title="{1}">{0}</a>'.format(
+        email, email.name) or ''
 email.allow_tags = True
 
 
 def location(obj):
-    address = obj.addresses.get_first()
-    city = address and address.city or ''
-    country = address and address.country or ''
-
-    if city and country:
-        return '%s, %s' %(city, country)
+    try:
+        address = obj.addresses.get_first()
+    except ObjectDoesNotExist:
+        return ''
     else:
-        return city or country or ''
+        return ', '.join(filter(bool, [address.city, address.country]))
 
 
 def phone(obj):
@@ -36,7 +34,7 @@ def phone(obj):
 
 
 def preview_image(obj):
-    html = u''
+    html = ''
     try:
         from sorl.thumbnail import get_thumbnail
     except ImportError:
@@ -48,7 +46,7 @@ def preview_image(obj):
             except:
                 pass
             else:
-                html = u'<img src="%s" alt="%s" />' %(thumb.url, str(obj))
+                html = '<img src="{0}" alt="{1}" />'.format(thumb.url, obj)
     return html
 preview_image.short_description = 'Image'
 preview_image.allow_tags = True
@@ -132,7 +130,7 @@ class PersonAdmin(AuthorshipMixin, admin.ModelAdmin):
             ('created_at', 'created_by'), ('updated_at', 'updated_by')],
             'classes': ['collapse']}),
     ]
-    list_display = ['__unicode__', email, phone, location, preview_image]
+    list_display = ['name', email, phone, location, preview_image]
     list_filter = ['organisations', 'groups']
     readonly_fields = ['created_at', 'created_by',
         'updated_at', 'updated_by']

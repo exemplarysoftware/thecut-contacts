@@ -11,6 +11,13 @@ import re
 import warnings
 
 
+try:
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    from thecut.contacts.utils import python_2_unicode_compatible
+
+
+@python_2_unicode_compatible
 class AbstractAddress(models.Model):
 
     name = models.CharField(max_length=250, blank=True)
@@ -26,7 +33,7 @@ class AbstractAddress(models.Model):
         abstract = True
         ordering = ('contact_addresses__order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.address
 
     @property
@@ -41,6 +48,7 @@ class Address(AbstractAddress):
     pass
 
 
+@python_2_unicode_compatible
 class AbstractEmail(models.Model):
 
     name = models.CharField(max_length=250, blank=True)
@@ -52,7 +60,7 @@ class AbstractEmail(models.Model):
         abstract = True
         ordering = ('contact_emails__order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
     def clean_fields(self, *args, **kwargs):
@@ -66,6 +74,7 @@ class Email(AbstractEmail):
     pass
 
 
+@python_2_unicode_compatible
 class AbstractInstantMessengerHandle(models.Model):
 
     name = models.CharField(max_length=250, blank=True)
@@ -79,7 +88,7 @@ class AbstractInstantMessengerHandle(models.Model):
         abstract = True
         ordering = ('contact_instant_messenger_handles__order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
 
@@ -88,6 +97,7 @@ class InstantMessengerHandle(AbstractInstantMessengerHandle):
     pass
 
 
+@python_2_unicode_compatible
 class AbstractNickname(models.Model):
 
     value = models.CharField('Name', max_length=250, db_index=True, blank=True)
@@ -97,7 +107,7 @@ class AbstractNickname(models.Model):
         abstract = True
         ordering = ('contact_nicknames__order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
 
@@ -106,6 +116,7 @@ class Nickname(AbstractNickname):
     pass
 
 
+@python_2_unicode_compatible
 class AbstractPhone(models.Model):
 
     name = models.CharField(max_length=250, blank=True)
@@ -119,7 +130,7 @@ class AbstractPhone(models.Model):
         abstract = True
         ordering = ('contact_phones__order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
     def clean_fields(self, *args, **kwargs):
@@ -133,6 +144,7 @@ class Phone(AbstractPhone):
     pass
 
 
+@python_2_unicode_compatible
 class AbstractWebsite(models.Model):
 
     name = models.CharField(max_length=250, blank=True)
@@ -143,7 +155,7 @@ class AbstractWebsite(models.Model):
         abstract = True
         ordering = ('contact_websites__order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
     def clean_fields(self, *args, **kwargs):
@@ -157,6 +169,7 @@ class Website(AbstractWebsite):
     pass
 
 
+@python_2_unicode_compatible
 class AbstractContactGroup(Authorship):
 
     name = models.CharField(max_length=250, db_index=True, blank=True)
@@ -172,7 +185,7 @@ class AbstractContactGroup(Authorship):
         get_latest_by = 'created_at'
         ordering = ('name', '-created_at')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def is_active(self):
@@ -273,6 +286,7 @@ class Contact(AbstractContact):
         return self.websites.get_first()
 
 
+@python_2_unicode_compatible
 class ContactAddress(models.Model):
 
     contact = models.ForeignKey('contacts.Contact', related_name='+')
@@ -284,7 +298,7 @@ class ContactAddress(models.Model):
         ordering = ('order',)
         unique_together = ('contact', 'address')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.address)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactAddress)
@@ -292,6 +306,7 @@ models.signals.post_delete.connect(receivers.delete_related_address,
     sender=ContactAddress)
 
 
+@python_2_unicode_compatible
 class ContactEmail(models.Model):
 
     contact = models.ForeignKey('contacts.Contact', related_name='+')
@@ -302,7 +317,7 @@ class ContactEmail(models.Model):
         ordering = ('order',)
         unique_together = ('contact', 'email')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.email)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactEmail)
@@ -310,6 +325,7 @@ models.signals.post_delete.connect(receivers.delete_related_email,
     sender=ContactEmail)
 
 
+@python_2_unicode_compatible
 class ContactInstantMessengerHandle(models.Model):
 
     contact = models.ForeignKey('contacts.Contact', related_name='+')
@@ -322,7 +338,7 @@ class ContactInstantMessengerHandle(models.Model):
         ordering = ('order',)
         unique_together = ('contact', 'instant_messenger_handle')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.instant_messenger_handle)
 
 models.signals.pre_save.connect(receivers.set_order,
@@ -332,6 +348,7 @@ models.signals.post_delete.connect(
     sender=ContactInstantMessengerHandle)
 
 
+@python_2_unicode_compatible
 class ContactNickname(models.Model):
 
     contact = models.ForeignKey('contacts.Contact', related_name='+')
@@ -343,7 +360,7 @@ class ContactNickname(models.Model):
         ordering = ('order',)
         unique_together = ('contact', 'nickname')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.nickname)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactNickname)
@@ -351,6 +368,7 @@ models.signals.post_delete.connect(receivers.delete_related_nickname,
                                    sender=ContactNickname)
 
 
+@python_2_unicode_compatible
 class ContactPhone(models.Model):
 
     contact = models.ForeignKey('contacts.Contact', related_name='+')
@@ -361,7 +379,7 @@ class ContactPhone(models.Model):
         ordering = ('order',)
         unique_together = ('contact', 'phone')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.phone)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactPhone)
@@ -369,6 +387,7 @@ models.signals.post_delete.connect(receivers.delete_related_phone,
                                    sender=ContactPhone)
 
 
+@python_2_unicode_compatible
 class ContactWebsite(models.Model):
 
     contact = models.ForeignKey('contacts.Contact', related_name='+')
@@ -380,7 +399,7 @@ class ContactWebsite(models.Model):
         ordering = ('order',)
         unique_together = ('contact', 'website')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.website)
 
 models.signals.pre_save.connect(receivers.set_order, sender=ContactWebsite)
@@ -388,6 +407,7 @@ models.signals.post_delete.connect(receivers.delete_related_website,
                                    sender=ContactWebsite)
 
 
+@python_2_unicode_compatible
 class PersonOrganisation(models.Model):
 
     person = models.ForeignKey('contacts.Person', related_name='occupations')
@@ -401,7 +421,7 @@ class PersonOrganisation(models.Model):
         verbose_name = 'employment'
         verbose_name_plural = 'employment'
 
-    def __unicode__(self):
+    def __str__(self):
         if self.organisation and self.person and self.title:
             return '{0}: {1} ({2})'.format(self.organisation, self.person,
                                            self.title)
@@ -414,6 +434,7 @@ models.signals.pre_save.connect(receivers.set_personorganisation_order,
     sender=PersonOrganisation)
 
 
+@python_2_unicode_compatible
 class AbstractPerson(Contact):
 
     title = models.CharField(max_length=250, blank=True)
@@ -428,7 +449,7 @@ class AbstractPerson(Contact):
         abstract = True
         ordering = ('long_name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name or 'Unnamed'
 
     @property
@@ -448,6 +469,7 @@ class Person(AbstractPerson):
         verbose_name_plural = 'people'
 
 
+@python_2_unicode_compatible
 class AbstractOrganisation(Contact):
 
     name = models.CharField(max_length=250, db_index=True, blank=True)
@@ -457,7 +479,7 @@ class AbstractOrganisation(Contact):
         abstract = True
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
