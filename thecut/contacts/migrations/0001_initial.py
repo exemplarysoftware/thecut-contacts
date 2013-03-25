@@ -3,11 +3,13 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from thecut.authorship.settings import AUTH_USER_MODEL
+
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding model 'Address'
         db.create_table('contacts_address', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -74,11 +76,11 @@ class Migration(SchemaMigration):
             ('is_featured', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('publish_at', self.gf('django.db.models.fields.DateTimeField')()),
             ('expire_at', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('publish_by', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='contact_publish_by_user', null=True, to=orm['auth.User'])),
+            ('publish_by', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='contact_publish_by_user', null=True, to=orm[AUTH_USER_MODEL])),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('created_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='contact_created_by_user', to=orm['auth.User'])),
+            ('created_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='contact_created_by_user', to=orm[AUTH_USER_MODEL])),
             ('updated_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('updated_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='contact_updated_by_user', to=orm['auth.User'])),
+            ('updated_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='contact_updated_by_user', to=orm[AUTH_USER_MODEL])),
             ('image', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
             ('biography', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('notes', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
@@ -99,7 +101,7 @@ class Migration(SchemaMigration):
         # Adding model 'Person'
         db.create_table('contacts_person', (
             ('contact_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['contacts.Contact'], unique=True, primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, null=True, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm[AUTH_USER_MODEL], unique=True, null=True, blank=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=15, null=True, blank=True)),
             ('first_name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
             ('last_name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
@@ -118,7 +120,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Deleting model 'Address'
         db.delete_table('contacts_address')
 
@@ -195,7 +197,7 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['-created_at']", 'object_name': 'Contact'},
             'biography': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_created_by_user'", 'to': "orm['auth.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_created_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'expire_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
@@ -203,10 +205,10 @@ class Migration(SchemaMigration):
             'is_featured': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'publish_at': ('django.db.models.fields.DateTimeField', [], {}),
-            'publish_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contact_publish_by_user'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'publish_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contact_publish_by_user'", 'null': 'True', 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'tags': ('tagging.fields.TagField', [], {'null': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_updated_by_user'", 'to': "orm['auth.User']"})
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_updated_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         'contacts.email': {
             'Meta': {'object_name': 'Email'},
@@ -244,7 +246,7 @@ class Migration(SchemaMigration):
             'organisations': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'people'", 'to': "orm['contacts.Organisation']", 'through': "orm['contacts.PersonOrganisation']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'suffix': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'null': 'True', 'blank': 'True'})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['{0}']".format(AUTH_USER_MODEL), 'unique': 'True', 'null': 'True', 'blank': 'True'})
         },
         'contacts.personorganisation': {
             'Meta': {'object_name': 'PersonOrganisation'},

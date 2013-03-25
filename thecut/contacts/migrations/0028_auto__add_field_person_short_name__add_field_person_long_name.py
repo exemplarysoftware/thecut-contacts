@@ -3,6 +3,7 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from thecut.authorship.settings import AUTH_USER_MODEL
 
 
 class Migration(SchemaMigration):
@@ -28,29 +29,6 @@ class Migration(SchemaMigration):
 
 
     models = {
-        u'accounts.account': {
-            'Meta': {'ordering': "[u'name']", 'object_name': 'Account'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '250'}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['sites.Site']", 'null': 'True', 'blank': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
-        },
-        u'accounts.user': {
-            'Meta': {'object_name': 'User'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']"}),
-            'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '254'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '254', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '254', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
         u'auth.group': {
             'Meta': {'object_name': 'Group'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -63,6 +41,22 @@ class Migration(SchemaMigration):
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        'auth.user': {
+            'Meta': {'object_name': 'User'},
+            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'contacts.address': {
             'Meta': {'ordering': "[u'contact_addresses__order']", 'object_name': 'Address'},
@@ -79,7 +73,7 @@ class Migration(SchemaMigration):
             'addresses': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': u"orm['contacts.Address']", 'through': u"orm['contacts.ContactAddress']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'biography': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': u"orm['accounts.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'emails': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': u"orm['contacts.Email']", 'through': u"orm['contacts.ContactEmail']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "u'contacts'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['contacts.ContactGroup']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -92,7 +86,7 @@ class Migration(SchemaMigration):
             'phones': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': u"orm['contacts.Phone']", 'through': u"orm['contacts.ContactPhone']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': u"orm['accounts.User']"}),
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'websites': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': u"orm['contacts.Website']", 'through': u"orm['contacts.ContactWebsite']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'})
         },
         u'contacts.contactaddress': {
@@ -112,7 +106,7 @@ class Migration(SchemaMigration):
         u'contacts.contactgroup': {
             'Meta': {'ordering': "[u'name', u'-created_at']", 'object_name': 'ContactGroup'},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': u"orm['accounts.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_featured': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -120,7 +114,7 @@ class Migration(SchemaMigration):
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': u"orm['accounts.User']"})
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         u'contacts.contactinstantmessengerhandle': {
             'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'instant_messenger_handle'],)", 'object_name': 'ContactInstantMessengerHandle'},
@@ -186,7 +180,7 @@ class Migration(SchemaMigration):
             'short_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '250', 'blank': 'True'}),
             'suffix': ('django.db.models.fields.CharField', [], {'max_length': '250', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "u'contact'", 'unique': 'True', 'null': 'True', 'to': u"orm['accounts.User']"})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "u'contact'", 'unique': 'True', 'null': 'True', 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         u'contacts.personorganisation': {
             'Meta': {'object_name': 'PersonOrganisation'},

@@ -3,6 +3,7 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from thecut.authorship.settings import AUTH_USER_MODEL
 
 
 class Migration(SchemaMigration):
@@ -64,7 +65,7 @@ class Migration(SchemaMigration):
             'addresses': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Address']", 'through': "orm['contacts.ContactAddress']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'biography': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['auth.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'emails': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Email']", 'through': "orm['contacts.ContactEmail']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "u'contacts'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['contacts.ContactGroup']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -77,7 +78,7 @@ class Migration(SchemaMigration):
             'phones': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Phone']", 'through': "orm['contacts.ContactPhone']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['auth.User']"}),
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'websites': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Website']", 'through': "orm['contacts.ContactWebsite']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'})
         },
         'contacts.contactaddress': {
@@ -97,7 +98,7 @@ class Migration(SchemaMigration):
         'contacts.contactgroup': {
             'Meta': {'ordering': "[u'name', u'-created_at']", 'object_name': 'ContactGroup'},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['auth.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_featured': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -105,7 +106,7 @@ class Migration(SchemaMigration):
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['auth.User']"})
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         'contacts.contactinstantmessengerhandle': {
             'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'instant_messenger_handle'],)", 'object_name': 'ContactInstantMessengerHandle'},
@@ -169,7 +170,7 @@ class Migration(SchemaMigration):
             'organisations': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'people'", 'to': "orm['contacts.Organisation']", 'through': "orm['contacts.PersonOrganisation']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'suffix': ('django.db.models.fields.CharField', [], {'max_length': '250', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "u'contact'", 'unique': 'True', 'null': 'True', 'to': "orm['auth.User']"})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "u'contact'", 'unique': 'True', 'null': 'True', 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         'contacts.personorganisation': {
             'Meta': {'object_name': 'PersonOrganisation'},
