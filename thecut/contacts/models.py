@@ -4,6 +4,7 @@ from django.db import models
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
+from thecut.authorship.models import Authorship
 from thecut.contacts import choices, receivers, settings
 from thecut.contacts.querysets import ActiveFeaturedQuerySet, QuerySet
 import re
@@ -23,7 +24,7 @@ class AbstractAddress(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ['contact_addresses__order']
+        ordering = ('contact_addresses__order',)
 
     def __unicode__(self):
         return self.address
@@ -49,7 +50,7 @@ class AbstractEmail(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ['contact_emails__order']
+        ordering = ('contact_emails__order',)
 
     def __unicode__(self):
         return self.value
@@ -76,7 +77,7 @@ class AbstractInstantMessengerHandle(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ['contact_instant_messenger_handles__order']
+        ordering = ('contact_instant_messenger_handles__order',)
 
     def __unicode__(self):
         return self.value
@@ -94,7 +95,7 @@ class AbstractNickname(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ['contact_nicknames__order']
+        ordering = ('contact_nicknames__order',)
 
     def __unicode__(self):
         return self.value
@@ -116,7 +117,7 @@ class AbstractPhone(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ['contact_phones__order']
+        ordering = ('contact_phones__order',)
 
     def __unicode__(self):
         return self.value
@@ -140,7 +141,7 @@ class AbstractWebsite(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ['contact_websites__order']
+        ordering = ('contact_websites__order',)
 
     def __unicode__(self):
         return self.value
@@ -156,7 +157,7 @@ class Website(AbstractWebsite):
     pass
 
 
-class AbstractContactGroup(models.Model):
+class AbstractContactGroup(Authorship):
 
     name = models.CharField(max_length=250, db_index=True, blank=True)
     notes = models.TextField(blank=True)
@@ -164,18 +165,12 @@ class AbstractContactGroup(models.Model):
                     'quotes around multiple-word tags.')
     is_enabled = models.BooleanField('enabled', default=True)
     is_featured = models.BooleanField('featured', default=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False,
-                                   related_name='+')
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False,
-                                   related_name='+')
     objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
 
-    class Meta(object):
+    class Meta(Authorship.Meta):
         abstract = True
         get_latest_by = 'created_at'
-        ordering = ['name', '-created_at']
+        ordering = ('name', '-created_at')
 
     def __unicode__(self):
         return self.name
@@ -190,7 +185,7 @@ class ContactGroup(AbstractContactGroup):
         pass
 
 
-class AbstractContact(models.Model):
+class AbstractContact(Authorship):
 
     image = models.FileField(upload_to='uploads/contacts/images/%Y/%m/%d',
                              blank=True, null=True)
@@ -200,18 +195,12 @@ class AbstractContact(models.Model):
                     'quotes around multiple-word tags.')
     is_enabled = models.BooleanField('enabled', default=True)
     is_featured = models.BooleanField('featured', default=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False,
-                                   related_name='+')
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False,
-                                   related_name='+')
     objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
 
-    class Meta(object):
+    class Meta(Authorship.Meta):
         abstract = True
         get_latest_by = 'created_at'
-        ordering = ['-created_at']
+        ordering = ('-created_at',)
 
     def is_active(self):
         return self.__class__.objects.active().filter(pk=self.pk).exists()
@@ -292,8 +281,8 @@ class ContactAddress(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ['order']
-        unique_together = ['contact', 'address']
+        ordering = ('order',)
+        unique_together = ('contact', 'address')
 
     def __unicode__(self):
         return '{0}'.format(self.address)
@@ -310,8 +299,8 @@ class ContactEmail(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ['order']
-        unique_together = ['contact', 'email']
+        ordering = ('order',)
+        unique_together = ('contact', 'email')
 
     def __unicode__(self):
         return '{0}'.format(self.email)
@@ -330,8 +319,8 @@ class ContactInstantMessengerHandle(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ['order']
-        unique_together = ['contact', 'instant_messenger_handle']
+        ordering = ('order',)
+        unique_together = ('contact', 'instant_messenger_handle')
 
     def __unicode__(self):
         return '{0}'.format(self.instant_messenger_handle)
@@ -351,8 +340,8 @@ class ContactNickname(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ['order']
-        unique_together = ['contact', 'nickname']
+        ordering = ('order',)
+        unique_together = ('contact', 'nickname')
 
     def __unicode__(self):
         return '{0}'.format(self.nickname)
@@ -369,8 +358,8 @@ class ContactPhone(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ['order']
-        unique_together = ['contact', 'phone']
+        ordering = ('order',)
+        unique_together = ('contact', 'phone')
 
     def __unicode__(self):
         return '{0}'.format(self.phone)
@@ -388,8 +377,8 @@ class ContactWebsite(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ['order']
-        unique_together = ['contact', 'website']
+        ordering = ('order',)
+        unique_together = ('contact', 'website')
 
     def __unicode__(self):
         return '{0}'.format(self.website)
@@ -437,7 +426,7 @@ class AbstractPerson(Contact):
 
     class Meta(Contact.Meta):
         abstract = True
-        ordering = ['long_name']
+        ordering = ('long_name',)
 
     def __unicode__(self):
         return self.name or 'Unnamed'
@@ -466,7 +455,7 @@ class AbstractOrganisation(Contact):
 
     class Meta(Contact.Meta):
         abstract = True
-        ordering = ['name']
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

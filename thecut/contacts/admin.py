@@ -3,10 +3,12 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
+from thecut.authorship.admin import AuthorshipMixin
 from thecut.contacts import forms
-from thecut.contacts.models import (ContactAddress, ContactGroup, ContactEmail,
-    ContactInstantMessengerHandle, ContactNickname, ContactPhone, Organisation,
-    Person, PersonOrganisation, ContactWebsite)
+from thecut.contacts.models import (
+    ContactAddress, ContactGroup, ContactEmail, ContactInstantMessengerHandle,
+    ContactNickname, ContactPhone, Organisation, Person, PersonOrganisation,
+    ContactWebsite)
 
 
 def email(obj):
@@ -21,7 +23,7 @@ def location(obj):
     address = obj.addresses.get_first()
     city = address and address.city or ''
     country = address and address.country or ''
-    
+
     if city and country:
         return '%s, %s' %(city, country)
     else:
@@ -121,16 +123,7 @@ class OrganisationPersonInline(admin.TabularInline):
     verbose_name_plural = 'People'
 
 
-class CreatedUpdatedMixin(object):
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.created_by = request.user
-        obj.updated_by = request.user
-        return super(CreatedUpdatedMixin, self).save_model(request, obj, form,
-            change)
-
-
-class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
+class PersonAdmin(AuthorshipMixin, admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', ('short_name', 'long_name'),
             'suffix', 'image', 'date_of_birth', 'gender', 'biography', 'notes',
@@ -152,7 +145,7 @@ class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
 admin.site.register(Person, PersonAdmin)
 
 
-class OrganisationAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
+class OrganisationAdmin(AuthorshipMixin, admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['name', 'abn', 'image', 'biography',
             'notes', 'groups', 'tags']}),
@@ -173,7 +166,7 @@ class OrganisationAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
 admin.site.register(Organisation, OrganisationAdmin)
 
 
-class ContactGroupAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
+class ContactGroupAdmin(AuthorshipMixin, admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['name', 'notes', 'tags']}),
         ('Publishing', {'fields': ['is_enabled', 'is_featured',
@@ -186,4 +179,3 @@ class ContactGroupAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
     search_fields = ['name']
 
 admin.site.register(ContactGroup, ContactGroupAdmin)
-

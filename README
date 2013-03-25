@@ -1,13 +1,13 @@
 The Cut Django App: Contacts
 
-
-
 ===============
 thecut.contacts
 ===============
 
-To install this application (whilst in the project's activated
-virtualenv)::
+This application requires ``thecut.authorship``.
+
+
+To install this application (whilst in the project's activated virtualenv)::
     pip install git+ssh://git@git.thecut.net.au/thecut-contacts
 
 
@@ -17,6 +17,7 @@ Add the ``thecut.contacts`` to the project's ``INSTALLED_APPS`` setting::
         ...
         'thecut.contacts',
     )
+
 
 If you would like to run the tests, install the requirements::
     pip install -r lib/python2.7/site-packages/thecut/contacts/tests/requirements.txt
