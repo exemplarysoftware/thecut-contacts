@@ -9,52 +9,16 @@ from thecut.authorship.settings import AUTH_USER_MODEL
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'ContactGroup.publish_at'
-        db.delete_column('contacts_contactgroup', 'publish_at')
-
-        # Deleting field 'ContactGroup.publish_by'
-        db.delete_column('contacts_contactgroup', 'publish_by_id')
-
-        # Deleting field 'ContactGroup.expire_at'
-        db.delete_column('contacts_contactgroup', 'expire_at')
-
-        # Deleting field 'Contact.expire_at'
-        db.delete_column('contacts_contact', 'expire_at')
-
-        # Deleting field 'Contact.publish_by'
-        db.delete_column('contacts_contact', 'publish_by_id')
-
-        # Deleting field 'Contact.publish_at'
-        db.delete_column('contacts_contact', 'publish_at')
+        # Adding field 'Person.gender'
+        db.add_column('contacts_person', 'gender',
+                      self.gf('django.db.models.fields.CharField')(default=u'', max_length=1, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
+        # Deleting field 'Person.gender'
+        db.delete_column('contacts_person', 'gender')
 
-        # User chose to not deal with backwards NULL issues for 'ContactGroup.publish_at'
-        raise RuntimeError("Cannot reverse this migration. 'ContactGroup.publish_at' and its values cannot be restored.")
-        # Adding field 'ContactGroup.publish_by'
-        db.add_column('contacts_contactgroup', 'publish_by',
-                      self.gf('django.db.models.fields.related.ForeignKey')(related_name='contactgroup_publish_by_user', null=True, to=orm[AUTH_USER_MODEL], blank=True),
-                      keep_default=False)
-
-        # Adding field 'ContactGroup.expire_at'
-        db.add_column('contacts_contactgroup', 'expire_at',
-                      self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True),
-                      keep_default=False)
-
-        # Adding field 'Contact.expire_at'
-        db.add_column('contacts_contact', 'expire_at',
-                      self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True),
-                      keep_default=False)
-
-        # Adding field 'Contact.publish_by'
-        db.add_column('contacts_contact', 'publish_by',
-                      self.gf('django.db.models.fields.related.ForeignKey')(related_name='contact_publish_by_user', null=True, to=orm[AUTH_USER_MODEL], blank=True),
-                      keep_default=False)
-
-
-        # User chose to not deal with backwards NULL issues for 'Contact.publish_at'
-        raise RuntimeError("Cannot reverse this migration. 'Contact.publish_at' and its values cannot be restored.")
 
     models = {
         'auth.group': {
@@ -87,9 +51,8 @@ class Migration(SchemaMigration):
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         'contacts.address': {
-            'Meta': {'object_name': 'Address'},
+            'Meta': {'ordering': "[u'contact_addresses__order']", 'object_name': 'Address'},
             'city': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'blank': 'True'}),
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'addresses'", 'to': "orm['contacts.Contact']"}),
             'country': ('django_countries.fields.CountryField', [], {'default': "u'AU'", 'max_length': '2', 'db_index': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
@@ -99,23 +62,43 @@ class Migration(SchemaMigration):
         },
         'contacts.contact': {
             'Meta': {'ordering': "[u'-created_at']", 'object_name': 'Contact'},
+            'addresses': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Address']", 'through': "orm['contacts.ContactAddress']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'biography': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_created_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
+            'emails': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Email']", 'through': "orm['contacts.ContactEmail']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "u'contacts'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['contacts.ContactGroup']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'instant_messenger_handles': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.InstantMessengerHandle']", 'through': "orm['contacts.ContactInstantMessengerHandle']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'is_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_featured': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'nicknames': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Nickname']", 'through': "orm['contacts.ContactNickname']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'phones': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Phone']", 'through': "orm['contacts.ContactPhone']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_updated_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
+            'websites': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'+'", 'to': "orm['contacts.Website']", 'through': "orm['contacts.ContactWebsite']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'})
+        },
+        'contacts.contactaddress': {
+            'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'address'],)", 'object_name': 'ContactAddress'},
+            'address': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_addresses'", 'to': "orm['contacts.Address']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['contacts.Contact']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
+        },
+        'contacts.contactemail': {
+            'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'email'],)", 'object_name': 'ContactEmail'},
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['contacts.Contact']"}),
+            'email': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_emails'", 'to': "orm['contacts.Email']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
         },
         'contacts.contactgroup': {
             'Meta': {'ordering': "[u'name', u'-created_at']", 'object_name': 'ContactGroup'},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contactgroup_created_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_featured': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -123,26 +106,51 @@ class Migration(SchemaMigration):
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contactgroup_updated_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
+        },
+        'contacts.contactinstantmessengerhandle': {
+            'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'instant_messenger_handle'],)", 'object_name': 'ContactInstantMessengerHandle'},
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['contacts.Contact']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'instant_messenger_handle': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_instant_messenger_handles'", 'to': "orm['contacts.InstantMessengerHandle']"}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
+        },
+        'contacts.contactnickname': {
+            'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'nickname'],)", 'object_name': 'ContactNickname'},
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['contacts.Contact']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'nickname': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_nicknames'", 'to': "orm['contacts.Nickname']"}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
+        },
+        'contacts.contactphone': {
+            'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'phone'],)", 'object_name': 'ContactPhone'},
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['contacts.Contact']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'phone': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_phones'", 'to': "orm['contacts.Phone']"})
+        },
+        'contacts.contactwebsite': {
+            'Meta': {'ordering': "[u'order']", 'unique_together': "([u'contact', u'website'],)", 'object_name': 'ContactWebsite'},
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'to': "orm['contacts.Contact']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'website': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'contact_websites'", 'to': "orm['contacts.Website']"})
         },
         'contacts.email': {
-            'Meta': {'object_name': 'Email'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'emails'", 'to': "orm['contacts.Contact']"}),
+            'Meta': {'ordering': "[u'contact_emails__order']", 'object_name': 'Email'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'value': ('django.db.models.fields.EmailField', [], {'db_index': 'True', 'max_length': '75', 'blank': 'True'})
         },
         'contacts.instantmessengerhandle': {
-            'Meta': {'object_name': 'InstantMessengerHandle'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'instant_messenger_handles'", 'to': "orm['contacts.Contact']"}),
+            'Meta': {'ordering': "[u'contact_instant_messenger_handles__order']", 'object_name': 'InstantMessengerHandle'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'blank': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'blank': 'True'})
         },
         'contacts.nickname': {
-            'Meta': {'object_name': 'Nickname'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'nicknames'", 'to': "orm['contacts.Contact']"}),
+            'Meta': {'ordering': "[u'contact_nicknames__order']", 'object_name': 'Nickname'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'blank': 'True'})
         },
@@ -157,6 +165,7 @@ class Migration(SchemaMigration):
             'contact_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['contacts.Contact']", 'unique': 'True', 'primary_key': 'True'}),
             'date_of_birth': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'blank': 'True'}),
+            'gender': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '1', 'blank': 'True'}),
             'last_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'blank': 'True'}),
             'organisations': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'people'", 'to': "orm['contacts.Organisation']", 'through': "orm['contacts.PersonOrganisation']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'suffix': ('django.db.models.fields.CharField', [], {'max_length': '250', 'blank': 'True'}),
@@ -167,21 +176,20 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'PersonOrganisation'},
             'department': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'organisation': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'positions'", 'to': "orm['contacts.Organisation']"}),
             'person': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'occupations'", 'to': "orm['contacts.Person']"}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         },
         'contacts.phone': {
-            'Meta': {'object_name': 'Phone'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'phones'", 'to': "orm['contacts.Contact']"}),
+            'Meta': {'ordering': "[u'contact_phones__order']", 'object_name': 'Phone'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'blank': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'blank': 'True'})
         },
         'contacts.website': {
-            'Meta': {'object_name': 'Website'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'websites'", 'to': "orm['contacts.Contact']"}),
+            'Meta': {'ordering': "[u'contact_websites__order']", 'object_name': 'Website'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'value': ('django.db.models.fields.URLField', [], {'db_index': 'True', 'max_length': '255', 'blank': 'True'})

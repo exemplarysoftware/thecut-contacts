@@ -3,11 +3,13 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from thecut.authorship.settings import AUTH_USER_MODEL
+
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Changing field 'Website.value'
         db.alter_column('contacts_website', 'value', self.gf('django.db.models.fields.URLField')(default='', max_length=255))
 
@@ -103,7 +105,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Changing field 'Website.value'
         db.alter_column('contacts_website', 'value', self.gf('django.db.models.fields.URLField')(max_length=255, null=True))
 
@@ -243,7 +245,7 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['-created_at']", 'object_name': 'Contact'},
             'biography': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_created_by_user'", 'to': "orm['auth.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_created_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'expire_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "u'contacts'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['contacts.ContactGroup']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -252,15 +254,15 @@ class Migration(SchemaMigration):
             'is_featured': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'publish_at': ('django.db.models.fields.DateTimeField', [], {}),
-            'publish_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contact_publish_by_user'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'publish_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contact_publish_by_user'", 'null': 'True', 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_updated_by_user'", 'to': "orm['auth.User']"})
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_updated_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         'contacts.contactgroup': {
             'Meta': {'ordering': "[u'name']", 'object_name': 'ContactGroup'},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contactgroup_created_by_user'", 'to': "orm['auth.User']"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contactgroup_created_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'expire_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
@@ -268,10 +270,10 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '150', 'blank': 'True'}),
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'publish_at': ('django.db.models.fields.DateTimeField', [], {}),
-            'publish_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contactgroup_publish_by_user'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'publish_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contactgroup_publish_by_user'", 'null': 'True', 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
             'tags': ('tagging.fields.TagField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contactgroup_updated_by_user'", 'to': "orm['auth.User']"})
+            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contactgroup_updated_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         'contacts.email': {
             'Meta': {'object_name': 'Email'},
@@ -309,7 +311,7 @@ class Migration(SchemaMigration):
             'organisations': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'people'", 'to': "orm['contacts.Organisation']", 'through': "orm['contacts.PersonOrganisation']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'suffix': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "u'contact'", 'unique': 'True', 'null': 'True', 'to': "orm['auth.User']"})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "u'contact'", 'unique': 'True', 'null': 'True', 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
         },
         'contacts.personorganisation': {
             'Meta': {'object_name': 'PersonOrganisation'},

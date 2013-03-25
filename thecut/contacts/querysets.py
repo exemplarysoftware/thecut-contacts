@@ -5,6 +5,13 @@ from django.db import models
 
 class QuerySet(models.query.QuerySet):
     
+    def get_first(self):
+        """Return the first object in the QuerySet."""
+        return self[:1].get()
+
+
+class ActiveFeaturedQuerySet(QuerySet):
+    
     def active(self):
         """Return active (enabled) objects."""
         return self.filter(is_enabled=True)
@@ -12,12 +19,4 @@ class QuerySet(models.query.QuerySet):
     def featured(self):
         """Return featured objects."""
         return self.filter(is_featured=True)
-
-
-class AbstractContactGroupQuerySet(QuerySet):
-    pass
-
-
-class AbstractContactQuerySet(QuerySet):
-    pass
 

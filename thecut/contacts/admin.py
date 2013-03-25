@@ -1,39 +1,49 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.forms import TextInput
-from thecut.contacts.models import (Address, ContactGroup, Email,
-    InstantMessengerHandle, Nickname, Organisation, Person, PersonOrganisation,
-    Phone, Website)
+from thecut.authorship.admin import AuthorshipMixin
+from thecut.contacts import forms
+from thecut.contacts.models import (
+    ContactAddress, ContactGroup, ContactEmail, ContactInstantMessengerHandle,
+    ContactNickname, ContactPhone, Organisation, Person, PersonOrganisation,
+    ContactWebsite)
 
 
 def email(obj):
-    email = obj.get_email()
-    return email and '<a href="mailto:%(email)s" ' \
-        'title="%(title)s">%(email)s</a>' %(
-        {'email': email, 'title': email.name}) or ''
+    try:
+        email = obj.emails.get_first()
+    except ObjectDoesNotExist:
+        return ''
+    else:
+        return '<a href="mailto:{email}" title="{name}">{email}</a>'.format(
+            email=email, name=email.name)
 email.allow_tags = True
 
 
 def location(obj):
-    address = obj.get_address()
-    city = address and address.city or ''
-    country = address and address.country or ''
-    
-    if city and country:
-        return '%s, %s' %(city, country)
+    try:
+        address = obj.addresses.get_first()
+    except ObjectDoesNotExist:
+        return ''
     else:
-        return city or country or ''
+        country = '{0}'.format(address.country)
+        return ', '.join(filter(bool, [address.city, country]))
 
 
 def phone(obj):
-    phone = obj.get_phone()
-    return phone or ''
+    try:
+        phone = obj.phones.get_first()
+    except ObjectDoesNotExist:
+        return ''
+    else:
+        return '{0}'.format(phone)
 
 
 def preview_image(obj):
-    html = u''
+    html = ''
     try:
         from sorl.thumbnail import get_thumbnail
     except ImportError:
@@ -45,49 +55,68 @@ def preview_image(obj):
             except:
                 pass
             else:
-                html = u'<img src="%s" alt="%s" />' %(thumb.url, str(obj))
+                html = '<img src="{0}" alt="{1}" />'.format(thumb.url, obj)
     return html
+
 preview_image.short_description = 'Image'
 preview_image.allow_tags = True
 
 
-class NicknameInline(admin.TabularInline):
+class ContactAddressInline(admin.StackedInline):
     extra = 0
-    model = Nickname
+    fieldsets = (
+        (None, {'fields': ('name', ('street', 'city'),
+                           ('state', 'postcode'), 'country')}),
+    )
+    form = forms.ContactAddressInlineForm
+    model = ContactAddress
+    verbose_name = 'address'
+    verbose_name_plural = 'addresses'
 
 
-class AddressInline(admin.StackedInline):
+class ContactEmailInline(admin.TabularInline):
     extra = 0
-    fieldsets = [(None, {'fields': ['name', ('street', 'city'),
-        ('state', 'postcode'), 'country']})]
-    formfield_overrides = {models.TextField: {'widget': TextInput(
-        attrs={'class': 'vTextField'})}}
-    model = Address
+    fields = ('name', 'value')
+    form = forms.ContactEmailInlineForm
+    model = ContactEmail
+    verbose_name = 'email address'
+    verbose_name_plural = 'email addresses'
 
 
-class EmailInline(admin.TabularInline):
+class ContactInstantMessengerHandleInline(admin.TabularInline):
     extra = 0
-    model = Email
-    verbose_name_plural = 'Email address'
-    verbose_name_plural = 'Email addresses'
+    fields = ('name', 'value', 'type')
+    form = forms.ContactInstantMessengerHandleInlineForm
+    model = ContactInstantMessengerHandle
+    verbose_name = 'instant messenger handle'
+    verbose_name_plural = 'instant messenger handles'
 
 
-class InstantMessengerHandleInline(admin.TabularInline):
+class ContactNicknameInline(admin.TabularInline):
     extra = 0
-    model = InstantMessengerHandle
-    verbose_name_plural = 'Instant messaging'
+    fields = ('value',)
+    form = forms.ContactNicknameInlineForm
+    model = ContactNickname
+    verbose_name = 'nickname'
+    verbose_name_plural = 'nicknames'
 
 
-class PhoneInline(admin.TabularInline):
+class ContactPhoneInline(admin.TabularInline):
     extra = 0
-    model = Phone
-    verbose_name = 'Phone number'
-    verbose_name_plural = 'Phone numbers'
+    fields = ('name', 'value', 'type',)
+    form = forms.ContactPhoneInlineForm
+    model = ContactPhone
+    verbose_name = 'phone number'
+    verbose_name_plural = 'phone numbers'
 
 
-class WebsiteInline(admin.TabularInline):
+class ContactWebsiteInline(admin.TabularInline):
     extra = 0
-    model = Website
+    fields = ('name', 'value',)
+    form = forms.ContactWebsiteInlineForm
+    model = ContactWebsite
+    verbose_name = 'website'
+    verbose_name_plural = 'websites'
 
 
 class PersonOrganisationInline(admin.TabularInline):
@@ -104,69 +133,59 @@ class OrganisationPersonInline(admin.TabularInline):
     verbose_name_plural = 'People'
 
 
-class CreatedUpdatedMixin(object):
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.created_by = request.user
-        obj.updated_by = request.user
-        return super(CreatedUpdatedMixin, self).save_model(request, obj, form,
-            change)
-
-
-class PersonAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
-    fieldsets = [
-        (None, {'fields': ['title', ('first_name', 'last_name'),
-            'suffix', 'image', 'date_of_birth', 'biography', 'notes',
-            'groups', 'tags']}),
-        ('Publishing', {'fields': ['is_enabled', 'is_featured',
-            ('created_at', 'created_by'), ('updated_at', 'updated_by')],
-            'classes': ['collapse']}),
-    ]
-    list_display = ['__unicode__', email, phone, location, preview_image]
-    list_filter = ['organisations', 'groups']
-    readonly_fields = ['created_at', 'created_by',
-        'updated_at', 'updated_by']
-    inlines = [PersonOrganisationInline, NicknameInline, AddressInline,
-        EmailInline, PhoneInline, InstantMessengerHandleInline,
-        WebsiteInline]
-    search_fields = ['first_name', 'last_name', 'nicknames__value',
-        'emails__value', 'phones__value']
+class PersonAdmin(AuthorshipMixin, admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('title', ('short_name', 'long_name'), 'suffix',
+                           'image', 'date_of_birth', 'gender', 'biography',
+                           'notes', 'groups', 'tags')}),
+        ('Publishing', {'fields': ('is_enabled', 'is_featured',
+                                   ('created_at', 'created_by'),
+                                   ('updated_at', 'updated_by')),
+                        'classes': ('collapse',)}),
+    )
+    list_display = ('name', email, phone, location, preview_image)
+    list_filter = ('organisations', 'groups')
+    readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by')
+    inlines = (PersonOrganisationInline, ContactNicknameInline,
+               ContactAddressInline, ContactEmailInline, ContactPhoneInline,
+               ContactInstantMessengerHandleInline, ContactWebsiteInline)
+    search_fields = ('short_name', 'long_name', 'nicknames__value',
+                     'emails__value', 'phones__value')
 
 admin.site.register(Person, PersonAdmin)
 
 
-class OrganisationAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
-    fieldsets = [
-        (None, {'fields': ['name', 'abn', 'image', 'biography',
-            'notes', 'groups', 'tags']}),
-        ('Publishing', {'fields': ['is_enabled', 'is_featured',
-            ('created_at', 'created_by'), ('updated_at', 'updated_by')],
-            'classes': ['collapse']}),
-    ]
-    list_display = ['name', email, phone, location, preview_image]
-    list_filter = ['groups']
-    readonly_fields = ['created_at', 'created_by',
-        'updated_at', 'updated_by']
-    inlines = [NicknameInline, AddressInline, EmailInline, PhoneInline,
-        InstantMessengerHandleInline, WebsiteInline,
-        OrganisationPersonInline]
-    search_fields = ['name', 'abn', 'nicknames__value',
-        'emails__value', 'phones__value']
+class OrganisationAdmin(AuthorshipMixin, admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('name', 'abn', 'image', 'biography', 'notes',
+                           'groups', 'tags')}),
+        ('Publishing', {'fields': ('is_enabled', 'is_featured',
+                                   ('created_at', 'created_by'),
+                                   ('updated_at', 'updated_by')),
+                        'classes': ('collapse',)}),
+    )
+    list_display = ('name', email, phone, location, preview_image)
+    list_filter = ('groups',)
+    readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by')
+    inlines = (ContactNicknameInline, ContactAddressInline, ContactEmailInline,
+               ContactPhoneInline, ContactInstantMessengerHandleInline,
+               ContactWebsiteInline, OrganisationPersonInline)
+    search_fields = ('name', 'abn', 'nicknames__value', 'emails__value',
+                     'phones__value')
 
 admin.site.register(Organisation, OrganisationAdmin)
 
 
-class ContactGroupAdmin(CreatedUpdatedMixin, admin.ModelAdmin):
-    fieldsets = [
-        (None, {'fields': ['name', 'notes', 'tags']}),
-        ('Publishing', {'fields': ['is_enabled', 'is_featured',
-            ('created_at', 'created_by'), ('updated_at', 'updated_by')],
-            'classes': ['collapse']}),
-    ]
-    list_display = ['name']
-    readonly_fields = ['created_at', 'created_by',
-        'updated_at', 'updated_by']
-    search_fields = ['name']
+class ContactGroupAdmin(AuthorshipMixin, admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('name', 'notes', 'tags')}),
+        ('Publishing', {'fields': ('is_enabled', 'is_featured',
+                                   ('created_at', 'created_by'),
+                                   ('updated_at', 'updated_by')),
+                        'classes': ('collapse',)}),
+    )
+    list_display = ('name',)
+    readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by')
+    search_fields = ('name',)
 
 admin.site.register(ContactGroup, ContactGroupAdmin)
-

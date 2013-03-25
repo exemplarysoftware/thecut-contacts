@@ -4,48 +4,65 @@ from django.db import models
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
 from tagging.fields import TagField
-from thecut.contacts import settings
-from thecut.contacts.querysets import (AbstractContactGroupQuerySet,
-    AbstractContactQuerySet)
+from thecut.authorship.models import Authorship
+from thecut.contacts import choices, receivers, settings
+from thecut.contacts.querysets import ActiveFeaturedQuerySet, QuerySet
 import re
+import warnings
 
 
+try:
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    from thecut.contacts.utils import python_2_unicode_compatible
+
+
+@python_2_unicode_compatible
 class AbstractAddress(models.Model):
-    name = models.CharField(max_length=50, blank=True)
+
+    name = models.CharField(max_length=250, blank=True)
     street = models.TextField(blank=True)
-    city = models.CharField(max_length=50, db_index=True, blank=True)
-    state = models.CharField(max_length=50, db_index=True, blank=True)
-    postcode = models.CharField(max_length=30, db_index=True, blank=True)
+    city = models.CharField(max_length=250, db_index=True, blank=True)
+    state = models.CharField(max_length=250, db_index=True, blank=True)
+    postcode = models.CharField(max_length=50, db_index=True, blank=True)
     country = CountryField(default=settings.DEFAULT_COUNTRY, db_index=True,
-        blank=True)
-    
+                           blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
+
     class Meta(object):
         abstract = True
-    
-    def __unicode__(self):
+        ordering = ('contact_addresses__order',)
+
+    def __str__(self):
         return self.address
-    
+
     @property
     def address(self):
-        return ' '.join([self.street, self.city,
-            self.state, self.postcode, unicode(self.country.name)])
+        items = [self.street, self.city, self.state, self.postcode,
+                 '{0}'.format(self.country.name)]
+        return ' '.join(filter(bool, items))
 
 
 class Address(AbstractAddress):
-    contact = models.ForeignKey('contacts.Contact', related_name='addresses')
+
+    pass
 
 
+@python_2_unicode_compatible
 class AbstractEmail(models.Model):
-    name = models.CharField(max_length=50, blank=True)
-    value = models.EmailField('Email', max_length=75, db_index=True,
-        blank=True)
-    
+
+    name = models.CharField(max_length=250, blank=True)
+    value = models.EmailField('Email', max_length=254, db_index=True,
+                              blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
+
     class Meta(object):
         abstract = True
-    
-    def __unicode__(self):
+        ordering = ('contact_emails__order',)
+
+    def __str__(self):
         return self.value
-    
+
     def clean_fields(self, *args, **kwargs):
         super(AbstractEmail, self).clean_fields(*args, **kwargs)
         if not 'value' in kwargs.get('exclude', []):
@@ -53,54 +70,69 @@ class AbstractEmail(models.Model):
 
 
 class Email(AbstractEmail):
-    contact = models.ForeignKey('contacts.Contact', related_name='emails')
+
+    pass
 
 
+@python_2_unicode_compatible
 class AbstractInstantMessengerHandle(models.Model):
-    name = models.CharField(max_length=50, blank=True)
-    value = models.CharField('ID', max_length=75, db_index=True, blank=True)
+
+    name = models.CharField(max_length=250, blank=True)
+    value = models.CharField('ID', max_length=254, db_index=True, blank=True)
     type = models.CharField(max_length=50, db_index=True,
-        choices=settings.INSTANT_MESSENGER_CHOICES, blank=True)
-    
+                            choices=choices.INSTANT_MESSENGER_TYPES,
+                            blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
+
     class Meta(object):
         abstract = True
-    
-    def __unicode__(self):
+        ordering = ('contact_instant_messenger_handles__order',)
+
+    def __str__(self):
         return self.value
 
 
 class InstantMessengerHandle(AbstractInstantMessengerHandle):
-    contact = models.ForeignKey('contacts.Contact',
-        related_name='instant_messenger_handles')
+
+    pass
 
 
+@python_2_unicode_compatible
 class AbstractNickname(models.Model):
-    value = models.CharField('Name', max_length=75, db_index=True, blank=True)
-    
+
+    value = models.CharField('Name', max_length=250, db_index=True, blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
+
     class Meta(object):
         abstract = True
-    
-    def __unicode__(self):
+        ordering = ('contact_nicknames__order',)
+
+    def __str__(self):
         return self.value
 
 
 class Nickname(AbstractNickname):
-    contact = models.ForeignKey('contacts.Contact', related_name='nicknames')
+
+    pass
 
 
+@python_2_unicode_compatible
 class AbstractPhone(models.Model):
-    name = models.CharField(max_length=50, blank=True)
-    value = models.CharField('Number', max_length=75, db_index=True,
-        blank=True)
+
+    name = models.CharField(max_length=250, blank=True)
+    value = models.CharField('Number', max_length=250, db_index=True,
+                             blank=True)
     type = models.CharField(max_length=50, db_index=True,
-        choices=settings.PHONE_TYPE_CHOICES, blank=True)
-    
+                            choices=choices.PHONE_TYPES, blank=True)
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
+
     class Meta(object):
         abstract = True
-    
-    def __unicode__(self):
+        ordering = ('contact_phones__order',)
+
+    def __str__(self):
         return self.value
-    
+
     def clean_fields(self, *args, **kwargs):
         super(AbstractPhone, self).clean_fields(*args, **kwargs)
         if not 'value' in kwargs.get('exclude', []):
@@ -108,19 +140,24 @@ class AbstractPhone(models.Model):
 
 
 class Phone(AbstractPhone):
-    contact = models.ForeignKey('contacts.Contact', related_name='phones')
+
+    pass
 
 
+@python_2_unicode_compatible
 class AbstractWebsite(models.Model):
-    name = models.CharField(max_length=50, blank=True)
+
+    name = models.CharField(max_length=250, blank=True)
     value = models.URLField('URL', max_length=255, db_index=True, blank=True)
-    
+    objects = PassThroughManager().for_queryset_class(QuerySet)()
+
     class Meta(object):
         abstract = True
-    
-    def __unicode__(self):
+        ordering = ('contact_websites__order',)
+
+    def __str__(self):
         return self.value
-    
+
     def clean_fields(self, *args, **kwargs):
         super(AbstractWebsite, self).clean_fields(*args, **kwargs)
         if not 'value' in kwargs.get('exclude', []):
@@ -128,172 +165,325 @@ class AbstractWebsite(models.Model):
 
 
 class Website(AbstractWebsite):
-    contact = models.ForeignKey('contacts.Contact', related_name='websites')
+
+    pass
 
 
-class AbstractContactGroup(models.Model):
-    
-    name = models.CharField(max_length=150, db_index=True, blank=True)
+@python_2_unicode_compatible
+class AbstractContactGroup(Authorship):
+
+    name = models.CharField(max_length=250, db_index=True, blank=True)
     notes = models.TextField(blank=True)
-    tags = TagField(blank=True, help_text='Separate tags with spaces, put ' \
-        'quotes around multiple-word tags.')
+    tags = TagField(blank=True, help_text='Separate tags with spaces, put '
+                    'quotes around multiple-word tags.')
     is_enabled = models.BooleanField('enabled', default=True)
     is_featured = models.BooleanField('featured', default=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    created_by = models.ForeignKey('auth.User', editable=False,
-        related_name='+')
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    updated_by = models.ForeignKey('auth.User', editable=False,
-        related_name='+')
-    objects = PassThroughManager().for_queryset_class(
-        AbstractContactGroupQuerySet)()
-    
-    class Meta(object):
+    objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
+
+    class Meta(Authorship.Meta):
         abstract = True
         get_latest_by = 'created_at'
-        ordering = ['name', '-created_at']
-    
-    def __unicode__(self):
+        ordering = ('name', '-created_at')
+
+    def __str__(self):
         return self.name
-    
+
     def is_active(self):
         return self in self.__class__.objects.active().filter(pk=self.pk)
 
 
 class ContactGroup(AbstractContactGroup):
-    
+
     class Meta(AbstractContactGroup.Meta):
         pass
 
 
-class AbstractContact(models.Model):
-    
+class AbstractContact(Authorship):
+
     image = models.FileField(upload_to='uploads/contacts/images/%Y/%m/%d',
-        blank=True, null=True)
+                             blank=True, null=True)
     biography = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-    tags = TagField(blank=True, help_text='Separate tags with spaces, put ' \
-        'quotes around multiple-word tags.')
+    tags = TagField(blank=True, help_text='Separate tags with spaces, put '
+                    'quotes around multiple-word tags.')
     is_enabled = models.BooleanField('enabled', default=True)
     is_featured = models.BooleanField('featured', default=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    created_by = models.ForeignKey('auth.User', editable=False,
-        related_name='+')
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-    updated_by = models.ForeignKey('auth.User', editable=False,
-        related_name='+')
-    objects = PassThroughManager().for_queryset_class(AbstractContactQuerySet)()
-    
-    class Meta(object):
+    objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
+
+    class Meta(Authorship.Meta):
         abstract = True
         get_latest_by = 'created_at'
-        ordering = ['-created_at']
-    
+        ordering = ('-created_at',)
+
     def is_active(self):
-        return self in self.__class__.objects.active().filter(pk=self.pk)
-    
-    def _get_first_m2m_item(self, m2m_field):
-        queryset = m2m_field.all()
-        try:
-            item = queryset[0]
-        except IndexError:
-            item = None
-        return item
-    
-    def get_address(self):
-        return self._get_first_m2m_item(self.addresses)
-    
-    def get_email(self):
-        return self._get_first_m2m_item(self.emails)
-    
-    def get_nickname(self):
-        return self._get_first_m2m_item(self.nicknames)
-    
-    def get_phone(self):
-        return self._get_first_m2m_item(self.phones)
-    
-    def get_website(self):
-        return self._get_first_m2m_item(self.websites)
+        return self.__class__.objects.active().filter(pk=self.pk).exists()
+
+models.signals.pre_save.connect(receivers.check_and_delete_image)
+models.signals.pre_delete.connect(receivers.delete_image)
 
 
 class Contact(AbstractContact):
+
     groups = models.ManyToManyField('contacts.ContactGroup',
-        related_name='contacts', blank=True, null=True)
-    
+                                    related_name='contacts', blank=True,
+                                    null=True)
+    addresses = models.ManyToManyField('contacts.Address', related_name='+',
+                                       through='contacts.ContactAddress',
+                                       blank=True, null=True)
+    emails = models.ManyToManyField('contacts.Email', related_name='+',
+                                    through='contacts.ContactEmail',
+                                    blank=True, null=True)
+    instant_messenger_handles = models.ManyToManyField(
+        'contacts.InstantMessengerHandle', related_name='+',
+        through='contacts.ContactInstantMessengerHandle', blank=True,
+        null=True)
+    nicknames = models.ManyToManyField('contacts.Nickname', related_name='+',
+                                       through='contacts.ContactNickname',
+                                       blank=True, null=True)
+    phones = models.ManyToManyField('contacts.Phone', related_name='+',
+                                    through='contacts.ContactPhone',
+                                    blank=True, null=True)
+    websites = models.ManyToManyField('contacts.Website', related_name='+',
+                                      through='contacts.ContactWebsite',
+                                      blank=True, null=True)
+
     class Meta(AbstractContact.Meta):
         pass
 
+    def get_address(self):
+        """Deprecated - instead use 'addresses.get_first()'."""
+        warnings.warn('\'get_address\' method is deprecated - use ' \
+            '\'addresses.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.addresses.get_first()
 
+    def get_email(self):
+        """Deprecated - instead use 'emails.get_first()'."""
+        warnings.warn('\'get_email\' method is deprecated - use ' \
+            '\'emails.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.emails.get_first()
+
+    def get_nickname(self):
+        """Deprecated - instead use 'nicknames.get_first()'."""
+        warnings.warn('\'get_nickname\' method is deprecated - use ' \
+            '\'nicknames.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.nicknames.get_first()
+
+    def get_phone(self):
+        """Deprecated - instead use 'phones.get_first()'."""
+        warnings.warn('\'get_phone\' method is deprecated - use ' \
+            '\'phones.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.phones.get_first()
+
+    def get_website(self):
+        """Deprecated - instead use 'websites.get_first()'."""
+        warnings.warn('\'get_website\' method is deprecated - use ' \
+            '\'websites.get_first()\' method.', DeprecationWarning,
+            stacklevel=2)
+        return self.websites.get_first()
+
+
+@python_2_unicode_compatible
+class ContactAddress(models.Model):
+
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    address = models.ForeignKey('contacts.Address',
+                                related_name='contact_addresses')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('order',)
+        unique_together = ('contact', 'address')
+
+    def __str__(self):
+        return '{0}'.format(self.address)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactAddress)
+models.signals.post_delete.connect(receivers.delete_related_address,
+                                   sender=ContactAddress)
+
+
+@python_2_unicode_compatible
+class ContactEmail(models.Model):
+
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    email = models.ForeignKey('contacts.Email', related_name='contact_emails')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('order',)
+        unique_together = ('contact', 'email')
+
+    def __str__(self):
+        return '{0}'.format(self.email)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactEmail)
+models.signals.post_delete.connect(receivers.delete_related_email,
+                                   sender=ContactEmail)
+
+
+@python_2_unicode_compatible
+class ContactInstantMessengerHandle(models.Model):
+
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    instant_messenger_handle = models.ForeignKey(
+        'contacts.InstantMessengerHandle',
+        related_name='contact_instant_messenger_handles')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('order',)
+        unique_together = ('contact', 'instant_messenger_handle')
+
+    def __str__(self):
+        return '{0}'.format(self.instant_messenger_handle)
+
+models.signals.pre_save.connect(receivers.set_order,
+                                sender=ContactInstantMessengerHandle)
+models.signals.post_delete.connect(
+    receivers.delete_related_instant_messenger_handle,
+    sender=ContactInstantMessengerHandle)
+
+
+@python_2_unicode_compatible
+class ContactNickname(models.Model):
+
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    nickname = models.ForeignKey('contacts.Nickname',
+                                 related_name='contact_nicknames')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('order',)
+        unique_together = ('contact', 'nickname')
+
+    def __str__(self):
+        return '{0}'.format(self.nickname)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactNickname)
+models.signals.post_delete.connect(receivers.delete_related_nickname,
+                                   sender=ContactNickname)
+
+
+@python_2_unicode_compatible
+class ContactPhone(models.Model):
+
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    phone = models.ForeignKey('contacts.Phone', related_name='contact_phones')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('order',)
+        unique_together = ('contact', 'phone')
+
+    def __str__(self):
+        return '{0}'.format(self.phone)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactPhone)
+models.signals.post_delete.connect(receivers.delete_related_phone,
+                                   sender=ContactPhone)
+
+
+@python_2_unicode_compatible
+class ContactWebsite(models.Model):
+
+    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    website = models.ForeignKey('contacts.Website',
+                                related_name='contact_websites')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta(object):
+        ordering = ('order',)
+        unique_together = ('contact', 'website')
+
+    def __str__(self):
+        return '{0}'.format(self.website)
+
+models.signals.pre_save.connect(receivers.set_order, sender=ContactWebsite)
+models.signals.post_delete.connect(receivers.delete_related_website,
+                                   sender=ContactWebsite)
+
+
+@python_2_unicode_compatible
 class PersonOrganisation(models.Model):
+
     person = models.ForeignKey('contacts.Person', related_name='occupations')
     organisation = models.ForeignKey('contacts.Organisation',
-        related_name='positions')
-    title = models.CharField(max_length=100, blank=True)
-    department = models.CharField(max_length=100, blank=True)
-    
+                                      related_name='positions')
+    title = models.CharField(max_length=250, blank=True)
+    department = models.CharField(max_length=250, blank=True)
+    order = models.PositiveIntegerField(default=0)
+
     class Meta:
         verbose_name = 'employment'
         verbose_name_plural = 'employment'
-    
-    def __unicode__(self):
-        organisation = unicode(self.organisation)
-        person = unicode(self.person)
-        title = self.title
-        if organisation and person and title:
-            return '%s: %s (%s)' %(organisation, person, title)
-        elif organisation and person:
-            return '%s: %s' %(organisation, person)
+
+    def __str__(self):
+        if self.organisation and self.person and self.title:
+            return '{0}: {1} ({2})'.format(self.organisation, self.person,
+                                           self.title)
+        elif self.organisation and self.person:
+            return '{0}: {1}'.format(self.organisation, self.person)
         else:
-            return organisation or person
+            return self.organisation or self.person
+
+models.signals.pre_save.connect(receivers.set_personorganisation_order,
+                                sender=PersonOrganisation)
 
 
+@python_2_unicode_compatible
 class AbstractPerson(Contact):
-    title = models.CharField(max_length=15, blank=True)
-    first_name = models.CharField(max_length=75, db_index=True, blank=True)
-    last_name = models.CharField(max_length=75, db_index=True, blank=True)
+
+    title = models.CharField(max_length=250, blank=True)
+    short_name = models.CharField(max_length=250, db_index=True, blank=True)
+    long_name = models.CharField(max_length=250, db_index=True, blank=True)
     suffix = models.CharField(max_length=250, blank=True)
     date_of_birth = models.DateField(blank=True, null=True)
-    
+    gender = models.CharField(max_length=1, blank=True, default='',
+                              choices=choices.GENDERS)
+
     class Meta(Contact.Meta):
         abstract = True
-        ordering = ['last_name', 'first_name']
-    
-    def __unicode__(self):
+        ordering = ('long_name',)
+
+    def __str__(self):
         return self.name or 'Unnamed'
-    
+
     @property
     def name(self):
-        if self.first_name and self.last_name:
-            return ' '.join([self.first_name, self.last_name])
-        else:
-            return self.first_name or self.last_name or None
+        return self.long_name or self.short_name or None
 
 
 class Person(AbstractPerson):
-    user = models.OneToOneField('auth.User', related_name='contact',
-        blank=True, null=True)
-    organisations = models.ManyToManyField('contacts.Organisation',
-        related_name='people', through='contacts.PersonOrganisation',
-        blank=True, null=True)
-    
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, blank=True,
+                                null=True, related_name='contact')
+    organisations = models.ManyToManyField(
+        'contacts.Organisation', related_name='people',
+        through='contacts.PersonOrganisation', blank=True, null=True)
+
     class Meta(AbstractPerson.Meta):
         verbose_name_plural = 'people'
 
 
+@python_2_unicode_compatible
 class AbstractOrganisation(Contact):
-    name = models.CharField(max_length=150, db_index=True, blank=True)
+
+    name = models.CharField(max_length=250, db_index=True, blank=True)
     abn = models.CharField('ABN', max_length=11, db_index=True, blank=True)
-    
+
     class Meta(Contact.Meta):
         abstract = True
-        ordering = ['name']
-    
-    def __unicode__(self):
+        ordering = ('name',)
+
+    def __str__(self):
         return self.name
 
 
 class Organisation(AbstractOrganisation):
-    
+
     class Meta(AbstractOrganisation.Meta):
         pass
-
