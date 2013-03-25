@@ -1,4 +1,2 @@
 include RELEASE-VERSION
-include AUTHORS COPYING README INSTALL LICENCE
-graft thecut/contacts/static
-graft thecut/contacts/templates
+include README
