@@ -31,7 +31,7 @@ class AbstractAddress(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ('contact_addresses__order',)
+        ordering = ['name']
 
     def __str__(self):
         return self.address
@@ -45,7 +45,9 @@ class AbstractAddress(models.Model):
 
 class Address(AbstractAddress):
 
-    pass
+
+    class Meta(AbstractAddress.Meta):
+        ordering = ['contact_addresses__order']
 
 
 @python_2_unicode_compatible
@@ -58,7 +60,7 @@ class AbstractEmail(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ('contact_emails__order',)
+        ordering = ['name']
 
     def __str__(self):
         return self.value
@@ -71,7 +73,8 @@ class AbstractEmail(models.Model):
 
 class Email(AbstractEmail):
 
-    pass
+    class Meta(AbstractEmail.Meta):
+        ordering = ['contact_emails__order']
 
 
 @python_2_unicode_compatible
@@ -86,7 +89,7 @@ class AbstractInstantMessengerHandle(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ('contact_instant_messenger_handles__order',)
+        ordering = ['name']
 
     def __str__(self):
         return self.value
@@ -94,7 +97,8 @@ class AbstractInstantMessengerHandle(models.Model):
 
 class InstantMessengerHandle(AbstractInstantMessengerHandle):
 
-    pass
+    class Meta(AbstractInstantMessengerHandle.Meta):
+        ordering = ['contact_instant_messenger_handles__order']
 
 
 @python_2_unicode_compatible
@@ -105,7 +109,7 @@ class AbstractNickname(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ('contact_nicknames__order',)
+        ordering = ['value']
 
     def __str__(self):
         return self.value
@@ -113,7 +117,8 @@ class AbstractNickname(models.Model):
 
 class Nickname(AbstractNickname):
 
-    pass
+    class Meta(AbstractNickname.Meta):
+        ordering = ['contact_nicknames__order']
 
 
 @python_2_unicode_compatible
@@ -128,7 +133,7 @@ class AbstractPhone(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ('contact_phones__order',)
+        ordering = ['name']
 
     def __str__(self):
         return self.value
@@ -141,7 +146,8 @@ class AbstractPhone(models.Model):
 
 class Phone(AbstractPhone):
 
-    pass
+    class Meta(AbstractPhone.Meta):
+        ordering = ['contact_phones__order']
 
 
 @python_2_unicode_compatible
@@ -153,7 +159,7 @@ class AbstractWebsite(models.Model):
 
     class Meta(object):
         abstract = True
-        ordering = ('contact_websites__order',)
+        ordering = ['name']
 
     def __str__(self):
         return self.value
@@ -166,7 +172,8 @@ class AbstractWebsite(models.Model):
 
 class Website(AbstractWebsite):
 
-    pass
+    class Meta(AbstractWebsite.Meta):
+        ordering = ['contact_websites__order']
 
 
 @python_2_unicode_compatible
