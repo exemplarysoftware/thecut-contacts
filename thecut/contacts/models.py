@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django.db import models
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
-from tagging.fields import TagField
+from taggit.managers import TaggableManager
 from thecut.authorship.models import Authorship
 from thecut.contacts import choices, receivers, settings
 from thecut.contacts.querysets import ActiveFeaturedQuerySet, QuerySet
@@ -181,8 +181,7 @@ class AbstractContactGroup(Authorship):
 
     name = models.CharField(max_length=250, db_index=True, blank=True)
     notes = models.TextField(blank=True)
-    tags = TagField(blank=True, help_text='Separate tags with spaces, put '
-                    'quotes around multiple-word tags.')
+    tags = TaggableManager(blank=True, related_name='+contactgroups')
     is_enabled = models.BooleanField('enabled', default=True)
     is_featured = models.BooleanField('featured', default=False)
     objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
@@ -211,8 +210,7 @@ class AbstractContact(Authorship):
                              blank=True, null=True)
     biography = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-    tags = TagField(blank=True, help_text='Separate tags with spaces, put '
-                    'quotes around multiple-word tags.')
+    tags = TaggableManager(blank=True, related_name='+contacts')
     is_enabled = models.BooleanField('enabled', default=True)
     is_featured = models.BooleanField('featured', default=False)
     objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
