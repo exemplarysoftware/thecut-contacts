@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from django import forms
-from django_countries.countries import COUNTRIES
+from django_countries import countries
 from thecut.contacts import choices, settings
 from thecut.contacts.models import (
     Address, ContactAddress, Email, ContactEmail, InstantMessengerHandle,
@@ -50,7 +50,7 @@ class ContactAddressInlineForm(ContactRelatedInlineForm):
 
     postcode = forms.CharField(label='Postcode', max_length=30, required=False)
 
-    country = forms.ChoiceField(label='Country', choices=COUNTRIES,
+    country = forms.ChoiceField(label='Country', choices=countries,
                                 initial=settings.DEFAULT_COUNTRY,
                                 required=False)
 

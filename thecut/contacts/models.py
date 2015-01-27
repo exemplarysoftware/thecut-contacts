@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from . import choices, managers, querysets, receivers, settings
 from django.contrib.gis.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django_countries import CountryField
+from django_countries.fields import CountryField
 from model_utils.managers import PassThroughManager
 from taggit.managers import TaggableManager
 from thecut.authorship.models import Authorship
