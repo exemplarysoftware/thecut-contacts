@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from django.db import models
+from . import choices, managers, querysets, receivers, settings
+from django.contrib.gis.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django_countries import CountryField
 from model_utils.managers import PassThroughManager
 from taggit.managers import TaggableManager
 from thecut.authorship.models import Authorship
-from thecut.contacts import choices, receivers, settings
-from thecut.contacts.querysets import ActiveFeaturedQuerySet, QuerySet
 import re
 import warnings
 
@@ -28,7 +27,9 @@ class AbstractAddress(models.Model):
     country = CountryField(default=settings.DEFAULT_COUNTRY, db_index=True,
                            blank=True)
 
-    objects = PassThroughManager().for_queryset_class(QuerySet)()
+    location = models.PointField(null=True, blank=True)
+
+    objects = managers.AddressManager.for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -58,7 +59,7 @@ class AbstractEmail(models.Model):
     value = models.EmailField('Email', max_length=254, db_index=True,
                               blank=True)
 
-    objects = PassThroughManager().for_queryset_class(QuerySet)()
+    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -90,7 +91,7 @@ class AbstractInstantMessengerHandle(models.Model):
                             choices=choices.INSTANT_MESSENGER_TYPES,
                             blank=True)
 
-    objects = PassThroughManager().for_queryset_class(QuerySet)()
+    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -111,7 +112,7 @@ class AbstractNickname(models.Model):
 
     value = models.CharField('Name', max_length=250, db_index=True, blank=True)
 
-    objects = PassThroughManager().for_queryset_class(QuerySet)()
+    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -138,7 +139,7 @@ class AbstractPhone(models.Model):
     type = models.CharField(max_length=50, db_index=True,
                             choices=choices.PHONE_TYPES, blank=True)
 
-    objects = PassThroughManager().for_queryset_class(QuerySet)()
+    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -166,7 +167,7 @@ class AbstractWebsite(models.Model):
 
     value = models.URLField('URL', max_length=255, db_index=True, blank=True)
 
-    objects = PassThroughManager().for_queryset_class(QuerySet)()
+    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -200,7 +201,8 @@ class AbstractContactGroup(Authorship):
 
     is_featured = models.BooleanField('featured', default=False)
 
-    objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
+    objects = PassThroughManager().for_queryset_class(
+        querysets.ActiveFeaturedQuerySet)()
 
     class Meta(Authorship.Meta):
         abstract = True
@@ -235,7 +237,8 @@ class AbstractContact(Authorship):
 
     is_featured = models.BooleanField('featured', default=False)
 
-    objects = PassThroughManager().for_queryset_class(ActiveFeaturedQuerySet)()
+    objects = PassThroughManager().for_queryset_class(
+        querysets.ActiveFeaturedQuerySet)()
 
     class Meta(Authorship.Meta):
         abstract = True
@@ -284,39 +287,39 @@ class Contact(AbstractContact):
         pass
 
     def get_address(self):
-        """Deprecated - instead use 'addresses.get_first()'."""
+        """Deprecated - instead use 'addresses.first()'."""
         warnings.warn('\'get_address\' method is deprecated - use '
-                      '\'addresses.get_first()\' method.', DeprecationWarning,
+                      '\'addresses.first()\' method.', DeprecationWarning,
                       stacklevel=2)
-        return self.addresses.get_first()
+        return self.addresses.get_first()  # Pre Django 1.6 compatibility
 
     def get_email(self):
-        """Deprecated - instead use 'emails.get_first()'."""
+        """Deprecated - instead use 'emails.first()'."""
         warnings.warn('\'get_email\' method is deprecated - use '
-                      '\'emails.get_first()\' method.', DeprecationWarning,
+                      '\'emails.first()\' method.', DeprecationWarning,
                       stacklevel=2)
-        return self.emails.get_first()
+        return self.emails.get_first()  # Pre Django 1.6 compatibility
 
     def get_nickname(self):
-        """Deprecated - instead use 'nicknames.get_first()'."""
+        """Deprecated - instead use 'nicknames.first()'."""
         warnings.warn('\'get_nickname\' method is deprecated - use '
-                      '\'nicknames.get_first()\' method.', DeprecationWarning,
+                      '\'nicknames.first()\' method.', DeprecationWarning,
                       stacklevel=2)
-        return self.nicknames.get_first()
+        return self.nicknames.get_first()  # Pre Django 1.6 compatibility
 
     def get_phone(self):
-        """Deprecated - instead use 'phones.get_first()'."""
+        """Deprecated - instead use 'phones.first()'."""
         warnings.warn('\'get_phone\' method is deprecated - use '
-                      '\'phones.get_first()\' method.', DeprecationWarning,
+                      '\'phones.first()\' method.', DeprecationWarning,
                       stacklevel=2)
-        return self.phones.get_first()
+        return self.phones.get_first()  # Pre Django 1.6 compatibility
 
     def get_website(self):
-        """Deprecated - instead use 'websites.get_first()'."""
+        """Deprecated - instead use 'websites.first()'."""
         warnings.warn('\'get_website\' method is deprecated - use '
-                      '\'websites.get_first()\' method.', DeprecationWarning,
+                      '\'websites.first()\' method.', DeprecationWarning,
                       stacklevel=2)
-        return self.websites.get_first()
+        return self.websites.get_first()  # Pre Django 1.6 compatibility
 
 
 @python_2_unicode_compatible
