@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+from . import choices, settings
+from .models import (Address, ContactAddress, Email, ContactEmail,
+                     InstantMessengerHandle, ContactInstantMessengerHandle,
+                     Nickname, ContactNickname, Phone, ContactPhone, Website,
+                     ContactWebsite)
 from django import forms
 from django_countries import countries
-from thecut.contacts import choices, settings
-from thecut.contacts.models import (
-    Address, ContactAddress, Email, ContactEmail, InstantMessengerHandle,
-    ContactInstantMessengerHandle, Nickname, ContactNickname, Phone,
-    ContactPhone, Website, ContactWebsite)
 
 
 class ContactRelatedInlineForm(forms.ModelForm):

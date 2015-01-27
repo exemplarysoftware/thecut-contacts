@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+from . import forms
+from .models import (ContactAddress, ContactGroup, ContactEmail,
+                     ContactInstantMessengerHandle, ContactNickname,
+                     ContactPhone, Organisation, Person, PersonOrganisation,
+                     ContactWebsite)
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from thecut.authorship.admin import AuthorshipMixin
-from thecut.contacts import forms
-from thecut.contacts.models import (
-    ContactAddress, ContactGroup, ContactEmail, ContactInstantMessengerHandle,
-    ContactNickname, ContactPhone, Organisation, Person, PersonOrganisation,
-    ContactWebsite)
 
 
 def email(obj):
