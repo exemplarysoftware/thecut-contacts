@@ -41,10 +41,15 @@ class ContactRelatedInlineForm(forms.ModelForm):
 class ContactAddressInlineForm(ContactRelatedInlineForm):
 
     name = forms.CharField(label='Name', max_length=50, required=False)
+
     street = forms.CharField(label='Street', required=False)
+
     city = forms.CharField(label='City', max_length=50, required=False)
+
     state = forms.CharField(label='State', max_length=50, required=False)
+
     postcode = forms.CharField(label='Postcode', max_length=30, required=False)
+
     country = forms.ChoiceField(label='Country', choices=COUNTRIES,
                                 initial=settings.DEFAULT_COUNTRY,
                                 required=False)
@@ -62,6 +67,7 @@ class ContactAddressInlineForm(ContactRelatedInlineForm):
 class ContactEmailInlineForm(ContactRelatedInlineForm):
 
     name = forms.CharField(label='Name', max_length=50, required=False)
+
     value = forms.EmailField(label='Email', max_length=75)
 
     _related_fields = ('name', 'value')
@@ -76,10 +82,12 @@ class ContactEmailInlineForm(ContactRelatedInlineForm):
 class ContactInstantMessengerHandleInlineForm(ContactRelatedInlineForm):
 
     name = forms.CharField(label='Name', max_length=50, required=False)
+
     value = forms.CharField(label='ID', max_length=75)
-    type = forms.ChoiceField(label='Type',
-                             choices=[('', '')]+choices.INSTANT_MESSENGER_TYPES,
-                             required=False)
+
+    type = forms.ChoiceField(
+        label='Type', choices=[('', '')]+choices.INSTANT_MESSENGER_TYPES,
+        required=False)
 
     _related_fields = ('name', 'value', 'type')
     _related_name = 'instant_messenger_handle'
@@ -106,7 +114,9 @@ class ContactNicknameInlineForm(ContactRelatedInlineForm):
 class ContactPhoneInlineForm(ContactRelatedInlineForm):
 
     name = forms.CharField(label='Name', max_length=50, required=False)
+
     value = forms.CharField(label='Number', max_length=75)
+
     type = forms.ChoiceField(label='Type',
                              choices=[('', '')]+choices.PHONE_TYPES,
                              required=False)
@@ -123,6 +133,7 @@ class ContactPhoneInlineForm(ContactRelatedInlineForm):
 class ContactWebsiteInlineForm(ContactRelatedInlineForm):
 
     name = forms.CharField(label='Name', max_length=50, required=False)
+
     value = forms.URLField(label='URL', max_length=255)
 
     _related_fields = ('name', 'value')
