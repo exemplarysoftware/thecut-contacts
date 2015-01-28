@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('is_featured', models.BooleanField(default=False, verbose_name='featured')),
             ],
             options={
-                'ordering': ('-created_at',),
+                'ordering': ['-created_at'],
                 'abstract': False,
                 'get_latest_by': 'created_at',
             },
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                 ('address', models.ForeignKey(related_name='contact_addresses', to='contacts.Address')),
             ],
             options={
-                'ordering': ('order',),
+                'ordering': ['order'],
             },
             bases=(models.Model,),
         ),
@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(default=0)),
             ],
             options={
-                'ordering': ('order',),
+                'ordering': ['order'],
             },
             bases=(models.Model,),
         ),
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
                 ('updated_by', models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'ordering': ('name', '-created_at'),
+                'ordering': ['name', '-created_at'],
                 'abstract': False,
                 'get_latest_by': 'created_at',
             },
@@ -104,7 +104,7 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(default=0)),
             ],
             options={
-                'ordering': ('order',),
+                'ordering': ['order'],
             },
             bases=(models.Model,),
         ),
@@ -115,7 +115,7 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(default=0)),
             ],
             options={
-                'ordering': ('order',),
+                'ordering': ['order'],
             },
             bases=(models.Model,),
         ),
@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(default=0)),
             ],
             options={
-                'ordering': ('order',),
+                'ordering': ['order'],
             },
             bases=(models.Model,),
         ),
@@ -137,7 +137,7 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(default=0)),
             ],
             options={
-                'ordering': ('order',),
+                'ordering': ['order'],
             },
             bases=(models.Model,),
         ),
@@ -188,7 +188,7 @@ class Migration(migrations.Migration):
                 ('abn', models.CharField(db_index=True, max_length=11, verbose_name='ABN', blank=True)),
             ],
             options={
-                'ordering': ('name',),
+                'ordering': ['name'],
                 'abstract': False,
                 'get_latest_by': 'created_at',
             },
@@ -206,7 +206,7 @@ class Migration(migrations.Migration):
                 ('gender', models.CharField(default='', max_length=1, blank=True, choices=[('M', 'Male'), ('F', 'Female')])),
             ],
             options={
-                'ordering': ('long_name',),
+                'ordering': ['long_name'],
                 'abstract': False,
                 'get_latest_by': 'created_at',
                 'verbose_name_plural': 'people',

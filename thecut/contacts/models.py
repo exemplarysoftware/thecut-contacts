@@ -207,7 +207,7 @@ class AbstractContactGroup(Authorship):
     class Meta(Authorship.Meta):
         abstract = True
         get_latest_by = 'created_at'
-        ordering = ('name', '-created_at')
+        ordering = ['name', '-created_at']
 
     def __str__(self):
         return self.name
@@ -243,7 +243,7 @@ class AbstractContact(Authorship):
     class Meta(Authorship.Meta):
         abstract = True
         get_latest_by = 'created_at'
-        ordering = ('-created_at',)
+        ordering = ['-created_at']
 
     def is_active(self):
         return self.__class__.objects.active().filter(pk=self.pk).exists()
@@ -333,8 +333,8 @@ class ContactAddress(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ('order',)
-        unique_together = ('contact', 'address')
+        ordering = ['order']
+        unique_together = ['contact', 'address']
 
     def __str__(self):
         return '{0}'.format(self.address)
@@ -354,8 +354,8 @@ class ContactEmail(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ('order',)
-        unique_together = ('contact', 'email')
+        ordering = ['order']
+        unique_together = ['contact', 'email']
 
     def __str__(self):
         return '{0}'.format(self.email)
@@ -377,8 +377,8 @@ class ContactInstantMessengerHandle(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ('order',)
-        unique_together = ('contact', 'instant_messenger_handle')
+        ordering = ['order']
+        unique_together = ['contact', 'instant_messenger_handle']
 
     def __str__(self):
         return '{0}'.format(self.instant_messenger_handle)
@@ -401,8 +401,8 @@ class ContactNickname(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ('order',)
-        unique_together = ('contact', 'nickname')
+        ordering = ['order']
+        unique_together = ['contact', 'nickname']
 
     def __str__(self):
         return '{0}'.format(self.nickname)
@@ -422,8 +422,8 @@ class ContactPhone(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ('order',)
-        unique_together = ('contact', 'phone')
+        ordering = ['order']
+        unique_together = ['contact', 'phone']
 
     def __str__(self):
         return '{0}'.format(self.phone)
@@ -444,8 +444,8 @@ class ContactWebsite(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta(object):
-        ordering = ('order',)
-        unique_together = ('contact', 'website')
+        ordering = ['order']
+        unique_together = ['contact', 'website']
 
     def __str__(self):
         return '{0}'.format(self.website)
@@ -504,7 +504,7 @@ class AbstractPerson(Contact):
 
     class Meta(Contact.Meta):
         abstract = True
-        ordering = ('long_name',)
+        ordering = ['long_name']
 
     def __str__(self):
         return self.name or 'Unnamed'
@@ -536,7 +536,7 @@ class AbstractOrganisation(Contact):
 
     class Meta(Contact.Meta):
         abstract = True
-        ordering = ('name',)
+        ordering = ['name']
 
     def __str__(self):
         return self.name
