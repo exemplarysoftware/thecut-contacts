@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+from . import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
-from thecut.contacts import settings
 
 
 def set_order(sender, instance, raw, contact_field='contact', **kwargs):
@@ -58,21 +58,26 @@ def delete_related_address(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
                                  related_name='address')
 
+
 def delete_related_email(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
                                  related_name='email')
+
 
 def delete_related_instant_messenger_handle(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
                                  related_name='instant_messenger_handle')
 
+
 def delete_related_nickname(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
                                  related_name='nickname')
 
+
 def delete_related_phone(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,
                                  related_name='phone')
+
 
 def delete_related_website(sender, instance, **kwargs):
     return delete_related_detail(sender=sender, instance=instance,

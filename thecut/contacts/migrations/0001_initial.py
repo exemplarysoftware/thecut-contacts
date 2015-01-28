@@ -1,271 +1,421 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
-from thecut.authorship.settings import AUTH_USER_MODEL
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import django_countries.fields
+import django.contrib.gis.db.models.fields
+from django.conf import settings
+import taggit.managers
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
+    dependencies = [
+        ('taggit', '0001_initial'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
 
-        # Adding model 'Address'
-        db.create_table('contacts_address', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='addresses', to=orm['contacts.Contact'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-            ('street', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('city', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
-            ('state', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
-            ('postcode', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=30, null=True, blank=True)),
-            ('country', self.gf('django_countries.fields.CountryField')(default='AU', max_length=2, null=True, db_index=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['Address'])
-
-        # Adding model 'Email'
-        db.create_table('contacts_email', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='emails', to=orm['contacts.Contact'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-            ('value', self.gf('django.db.models.fields.EmailField')(db_index=True, max_length=75, null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['Email'])
-
-        # Adding model 'InstantMessengerHandle'
-        db.create_table('contacts_instantmessengerhandle', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='instant_messenger_handles', to=orm['contacts.Contact'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-            ('value', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
-            ('type', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['InstantMessengerHandle'])
-
-        # Adding model 'Nickname'
-        db.create_table('contacts_nickname', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='nicknames', to=orm['contacts.Contact'])),
-            ('value', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['Nickname'])
-
-        # Adding model 'Phone'
-        db.create_table('contacts_phone', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='phones', to=orm['contacts.Contact'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-            ('value', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
-            ('type', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=50, null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['Phone'])
-
-        # Adding model 'Website'
-        db.create_table('contacts_website', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='websites', to=orm['contacts.Contact'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-            ('value', self.gf('django.db.models.fields.URLField')(db_index=True, max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['Website'])
-
-        # Adding model 'Contact'
-        db.create_table('contacts_contact', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('is_enabled', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('is_featured', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('publish_at', self.gf('django.db.models.fields.DateTimeField')()),
-            ('expire_at', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('publish_by', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='contact_publish_by_user', null=True, to=orm[AUTH_USER_MODEL])),
-            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('created_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='contact_created_by_user', to=orm[AUTH_USER_MODEL])),
-            ('updated_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('updated_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='contact_updated_by_user', to=orm[AUTH_USER_MODEL])),
-            ('image', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('biography', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('notes', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('tags', self.gf('tagging.fields.TagField')(null=True)),
-        ))
-        db.send_create_signal('contacts', ['Contact'])
-
-        # Adding model 'PersonOrganisation'
-        db.create_table('contacts_personorganisation', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('person', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Person'])),
-            ('organisation', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contacts.Organisation'])),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('department', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['PersonOrganisation'])
-
-        # Adding model 'Person'
-        db.create_table('contacts_person', (
-            ('contact_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['contacts.Contact'], unique=True, primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm[AUTH_USER_MODEL], unique=True, null=True, blank=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=15, null=True, blank=True)),
-            ('first_name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
-            ('last_name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=75, null=True, blank=True)),
-            ('suffix', self.gf('django.db.models.fields.CharField')(max_length=15, null=True, blank=True)),
-            ('date_of_birth', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['Person'])
-
-        # Adding model 'Organisation'
-        db.create_table('contacts_organisation', (
-            ('contact_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['contacts.Contact'], unique=True, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=150, null=True, blank=True)),
-            ('abn', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=11, null=True, blank=True)),
-        ))
-        db.send_create_signal('contacts', ['Organisation'])
-
-
-    def backwards(self, orm):
-
-        # Deleting model 'Address'
-        db.delete_table('contacts_address')
-
-        # Deleting model 'Email'
-        db.delete_table('contacts_email')
-
-        # Deleting model 'InstantMessengerHandle'
-        db.delete_table('contacts_instantmessengerhandle')
-
-        # Deleting model 'Nickname'
-        db.delete_table('contacts_nickname')
-
-        # Deleting model 'Phone'
-        db.delete_table('contacts_phone')
-
-        # Deleting model 'Website'
-        db.delete_table('contacts_website')
-
-        # Deleting model 'Contact'
-        db.delete_table('contacts_contact')
-
-        # Deleting model 'PersonOrganisation'
-        db.delete_table('contacts_personorganisation')
-
-        # Deleting model 'Person'
-        db.delete_table('contacts_person')
-
-        # Deleting model 'Organisation'
-        db.delete_table('contacts_organisation')
-
-
-    models = {
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        AUTH_USER_MODEL: {
-            'Meta': {'object_name': AUTH_USER_MODEL.split('.')[-1]},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        },
-        'contacts.address': {
-            'Meta': {'object_name': 'Address'},
-            'city': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'addresses'", 'to': "orm['contacts.Contact']"}),
-            'country': ('django_countries.fields.CountryField', [], {'default': "'AU'", 'max_length': '2', 'null': 'True', 'db_index': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'postcode': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '30', 'null': 'True', 'blank': 'True'}),
-            'state': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'street': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
-        },
-        'contacts.contact': {
-            'Meta': {'ordering': "['-created_at']", 'object_name': 'Contact'},
-            'biography': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_created_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
-            'expire_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'image': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'is_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_featured': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'publish_at': ('django.db.models.fields.DateTimeField', [], {}),
-            'publish_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contact_publish_by_user'", 'null': 'True', 'to': "orm['{0}']".format(AUTH_USER_MODEL)}),
-            'tags': ('tagging.fields.TagField', [], {'null': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'updated_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact_updated_by_user'", 'to': "orm['{0}']".format(AUTH_USER_MODEL)})
-        },
-        'contacts.email': {
-            'Meta': {'object_name': 'Email'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'emails'", 'to': "orm['contacts.Contact']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'value': ('django.db.models.fields.EmailField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'})
-        },
-        'contacts.instantmessengerhandle': {
-            'Meta': {'object_name': 'InstantMessengerHandle'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'instant_messenger_handles'", 'to': "orm['contacts.Contact']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'type': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'})
-        },
-        'contacts.nickname': {
-            'Meta': {'object_name': 'Nickname'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'nicknames'", 'to': "orm['contacts.Contact']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'})
-        },
-        'contacts.organisation': {
-            'Meta': {'ordering': "['-created_at']", 'object_name': 'Organisation', '_ormbases': ['contacts.Contact']},
-            'abn': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '11', 'null': 'True', 'blank': 'True'}),
-            'contact_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['contacts.Contact']", 'unique': 'True', 'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '150', 'null': 'True', 'blank': 'True'})
-        },
-        'contacts.person': {
-            'Meta': {'ordering': "['-created_at']", 'object_name': 'Person', '_ormbases': ['contacts.Contact']},
-            'contact_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['contacts.Contact']", 'unique': 'True', 'primary_key': 'True'}),
-            'date_of_birth': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'}),
-            'organisations': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'people'", 'to': "orm['contacts.Organisation']", 'through': "orm['contacts.PersonOrganisation']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
-            'suffix': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['{0}']".format(AUTH_USER_MODEL), 'unique': 'True', 'null': 'True', 'blank': 'True'})
-        },
-        'contacts.personorganisation': {
-            'Meta': {'object_name': 'PersonOrganisation'},
-            'department': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'organisation': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Organisation']"}),
-            'person': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Person']"}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
-        },
-        'contacts.phone': {
-            'Meta': {'object_name': 'Phone'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phones'", 'to': "orm['contacts.Contact']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'type': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'value': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '75', 'null': 'True', 'blank': 'True'})
-        },
-        'contacts.website': {
-            'Meta': {'object_name': 'Website'},
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'websites'", 'to': "orm['contacts.Contact']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
-            'value': ('django.db.models.fields.URLField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        }
-    }
-
-    complete_apps = ['contacts']
+    operations = [
+        migrations.CreateModel(
+            name='Address',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=250, blank=True)),
+                ('street', models.TextField(blank=True)),
+                ('city', models.CharField(db_index=True, max_length=250, blank=True)),
+                ('state', models.CharField(db_index=True, max_length=250, blank=True)),
+                ('postcode', models.CharField(db_index=True, max_length=50, blank=True)),
+                ('country', django_countries.fields.CountryField(default='AU', max_length=2, db_index=True, blank=True)),
+                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326, null=True, blank=True)),
+            ],
+            options={
+                'ordering': ['contact_addresses__order'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Contact',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('image', models.FileField(null=True, upload_to='uploads/contacts/images/%Y/%m/%d', blank=True)),
+                ('biography', models.TextField(blank=True)),
+                ('notes', models.TextField(blank=True)),
+                ('is_enabled', models.BooleanField(default=True, verbose_name='enabled')),
+                ('is_featured', models.BooleanField(default=False, verbose_name='featured')),
+            ],
+            options={
+                'ordering': ['-created_at'],
+                'abstract': False,
+                'get_latest_by': 'created_at',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ContactAddress',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('order', models.PositiveIntegerField(default=0)),
+                ('address', models.ForeignKey(related_name='contact_addresses', to='contacts.Address')),
+            ],
+            options={
+                'ordering': ['order'],
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ContactEmail',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('order', models.PositiveIntegerField(default=0)),
+            ],
+            options={
+                'ordering': ['order'],
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ContactGroup',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(db_index=True, max_length=250, blank=True)),
+                ('notes', models.TextField(blank=True)),
+                ('is_enabled', models.BooleanField(default=True, verbose_name='enabled')),
+                ('is_featured', models.BooleanField(default=False, verbose_name='featured')),
+                ('created_by', models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL)),
+                ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
+                ('updated_by', models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'ordering': ['name', '-created_at'],
+                'abstract': False,
+                'get_latest_by': 'created_at',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ContactInstantMessengerHandle',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('order', models.PositiveIntegerField(default=0)),
+            ],
+            options={
+                'ordering': ['order'],
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ContactNickname',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('order', models.PositiveIntegerField(default=0)),
+            ],
+            options={
+                'ordering': ['order'],
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ContactPhone',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('order', models.PositiveIntegerField(default=0)),
+            ],
+            options={
+                'ordering': ['order'],
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ContactWebsite',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('order', models.PositiveIntegerField(default=0)),
+            ],
+            options={
+                'ordering': ['order'],
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Email',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=250, blank=True)),
+                ('value', models.EmailField(db_index=True, max_length=254, verbose_name='Email', blank=True)),
+            ],
+            options={
+                'ordering': ['contact_emails__order'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='InstantMessengerHandle',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=250, blank=True)),
+                ('value', models.CharField(db_index=True, max_length=254, verbose_name='ID', blank=True)),
+                ('type', models.CharField(blank=True, max_length=50, db_index=True, choices=[('AIM', 'AIM'), ('Google Talk', 'Google Talk'), ('ICQ', 'ICQ'), ('IRC', 'IRC'), ('SIP', 'SIP'), ('Skype', 'Skype'), ('Windows Live', 'Windows Live'), ('XMPP', 'XMPP'), ('Yahoo!', 'Yahoo!')])),
+            ],
+            options={
+                'ordering': ['contact_instant_messenger_handles__order'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Nickname',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('value', models.CharField(db_index=True, max_length=250, verbose_name='Name', blank=True)),
+            ],
+            options={
+                'ordering': ['contact_nicknames__order'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Organisation',
+            fields=[
+                ('contact_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contacts.Contact')),
+                ('name', models.CharField(db_index=True, max_length=250, blank=True)),
+                ('abn', models.CharField(db_index=True, max_length=11, verbose_name='ABN', blank=True)),
+            ],
+            options={
+                'ordering': ['name'],
+                'abstract': False,
+                'get_latest_by': 'created_at',
+            },
+            bases=('contacts.contact',),
+        ),
+        migrations.CreateModel(
+            name='Person',
+            fields=[
+                ('contact_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contacts.Contact')),
+                ('title', models.CharField(max_length=250, blank=True)),
+                ('short_name', models.CharField(db_index=True, max_length=250, blank=True)),
+                ('long_name', models.CharField(db_index=True, max_length=250, blank=True)),
+                ('suffix', models.CharField(max_length=250, blank=True)),
+                ('date_of_birth', models.DateField(null=True, blank=True)),
+                ('gender', models.CharField(default='', max_length=1, blank=True, choices=[('M', 'Male'), ('F', 'Female')])),
+            ],
+            options={
+                'ordering': ['long_name'],
+                'abstract': False,
+                'get_latest_by': 'created_at',
+                'verbose_name_plural': 'people',
+            },
+            bases=('contacts.contact',),
+        ),
+        migrations.CreateModel(
+            name='PersonOrganisation',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=250, blank=True)),
+                ('department', models.CharField(max_length=250, blank=True)),
+                ('order', models.PositiveIntegerField(default=0)),
+                ('organisation', models.ForeignKey(related_name='positions', to='contacts.Organisation')),
+                ('person', models.ForeignKey(related_name='occupations', to='contacts.Person')),
+            ],
+            options={
+                'verbose_name': 'employment',
+                'verbose_name_plural': 'employment',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Phone',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=250, blank=True)),
+                ('value', models.CharField(db_index=True, max_length=250, verbose_name='Number', blank=True)),
+                ('type', models.CharField(blank=True, max_length=50, db_index=True, choices=[('Landline', 'Landline'), ('Mobile', 'Mobile'), ('Fax', 'Fax'), ('VOIP', 'VOIP')])),
+            ],
+            options={
+                'ordering': ['contact_phones__order'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Website',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=250, blank=True)),
+                ('value', models.URLField(db_index=True, max_length=255, verbose_name='URL', blank=True)),
+            ],
+            options={
+                'ordering': ['contact_websites__order'],
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='person',
+            name='organisations',
+            field=models.ManyToManyField(related_name='people', null=True, through='contacts.PersonOrganisation', to='contacts.Organisation', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='person',
+            name='user',
+            field=models.OneToOneField(related_name='contact', null=True, blank=True, to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contactwebsite',
+            name='contact',
+            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contactwebsite',
+            name='website',
+            field=models.ForeignKey(related_name='contact_websites', to='contacts.Website'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='contactwebsite',
+            unique_together=set([('contact', 'website')]),
+        ),
+        migrations.AddField(
+            model_name='contactphone',
+            name='contact',
+            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contactphone',
+            name='phone',
+            field=models.ForeignKey(related_name='contact_phones', to='contacts.Phone'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='contactphone',
+            unique_together=set([('contact', 'phone')]),
+        ),
+        migrations.AddField(
+            model_name='contactnickname',
+            name='contact',
+            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contactnickname',
+            name='nickname',
+            field=models.ForeignKey(related_name='contact_nicknames', to='contacts.Nickname'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='contactnickname',
+            unique_together=set([('contact', 'nickname')]),
+        ),
+        migrations.AddField(
+            model_name='contactinstantmessengerhandle',
+            name='contact',
+            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contactinstantmessengerhandle',
+            name='instant_messenger_handle',
+            field=models.ForeignKey(related_name='contact_instant_messenger_handles', to='contacts.InstantMessengerHandle'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='contactinstantmessengerhandle',
+            unique_together=set([('contact', 'instant_messenger_handle')]),
+        ),
+        migrations.AddField(
+            model_name='contactemail',
+            name='contact',
+            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contactemail',
+            name='email',
+            field=models.ForeignKey(related_name='contact_emails', to='contacts.Email'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='contactemail',
+            unique_together=set([('contact', 'email')]),
+        ),
+        migrations.AddField(
+            model_name='contactaddress',
+            name='contact',
+            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='contactaddress',
+            unique_together=set([('contact', 'address')]),
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='addresses',
+            field=models.ManyToManyField(related_name='+', null=True, through='contacts.ContactAddress', to='contacts.Address', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='created_by',
+            field=models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='emails',
+            field=models.ManyToManyField(related_name='+', null=True, through='contacts.ContactEmail', to='contacts.Email', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='groups',
+            field=models.ManyToManyField(related_name='contacts', null=True, to='contacts.ContactGroup', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='instant_messenger_handles',
+            field=models.ManyToManyField(related_name='+', null=True, through='contacts.ContactInstantMessengerHandle', to='contacts.InstantMessengerHandle', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='nicknames',
+            field=models.ManyToManyField(related_name='+', null=True, through='contacts.ContactNickname', to='contacts.Nickname', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='phones',
+            field=models.ManyToManyField(related_name='+', null=True, through='contacts.ContactPhone', to='contacts.Phone', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='tags',
+            field=taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='updated_by',
+            field=models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='contact',
+            name='websites',
+            field=models.ManyToManyField(related_name='+', null=True, through='contacts.ContactWebsite', to='contacts.Website', blank=True),
+            preserve_default=True,
+        ),
+    ]

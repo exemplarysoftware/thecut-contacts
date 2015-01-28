@@ -62,4 +62,3 @@ class TestQuerySet(TestCase):
         self.assertEqual(queryset.count(), 1)
         self.assertIn(self.first_group, queryset)
         self.assertNotIn(self.second_group, queryset)
-
