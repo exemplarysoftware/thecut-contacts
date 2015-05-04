@@ -195,7 +195,7 @@ class AbstractContactGroup(Authorship):
 
     notes = models.TextField(blank=True)
 
-    tags = TaggableManager(blank=True, related_name='+contactgroups')
+    tags = TaggableManager(blank=True, related_name='contactgroups+')
 
     is_enabled = models.BooleanField('enabled', default=True)
 
@@ -231,7 +231,7 @@ class AbstractContact(Authorship):
 
     notes = models.TextField(blank=True)
 
-    tags = TaggableManager(blank=True, related_name='+contacts')
+    tags = TaggableManager(blank=True, related_name='contacts+')
 
     is_enabled = models.BooleanField('enabled', default=True)
 
