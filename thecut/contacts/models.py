@@ -195,7 +195,7 @@ class AbstractContactGroup(Authorship):
 
     notes = models.TextField(blank=True)
 
-    tags = TaggableManager(blank=True, related_name='+contactgroups')
+    tags = TaggableManager(blank=True, related_name='contactgroups+')
 
     is_enabled = models.BooleanField('enabled', default=True)
 
@@ -231,7 +231,7 @@ class AbstractContact(Authorship):
 
     notes = models.TextField(blank=True)
 
-    tags = TaggableManager(blank=True, related_name='+contacts')
+    tags = TaggableManager(blank=True, related_name='contacts+')
 
     is_enabled = models.BooleanField('enabled', default=True)
 
@@ -255,33 +255,31 @@ models.signals.pre_delete.connect(receivers.delete_image)
 class Contact(AbstractContact):
 
     groups = models.ManyToManyField('contacts.ContactGroup',
-                                    related_name='contacts', blank=True,
-                                    null=True)
+                                    related_name='contacts', blank=True)
 
     addresses = models.ManyToManyField('contacts.Address', related_name='+',
                                        through='contacts.ContactAddress',
-                                       blank=True, null=True)
+                                       blank=True)
 
     emails = models.ManyToManyField('contacts.Email', related_name='+',
                                     through='contacts.ContactEmail',
-                                    blank=True, null=True)
+                                    blank=True)
 
     instant_messenger_handles = models.ManyToManyField(
         'contacts.InstantMessengerHandle', related_name='+',
-        through='contacts.ContactInstantMessengerHandle', blank=True,
-        null=True)
+        through='contacts.ContactInstantMessengerHandle', blank=True)
 
     nicknames = models.ManyToManyField('contacts.Nickname', related_name='+',
                                        through='contacts.ContactNickname',
-                                       blank=True, null=True)
+                                       blank=True)
 
     phones = models.ManyToManyField('contacts.Phone', related_name='+',
                                     through='contacts.ContactPhone',
-                                    blank=True, null=True)
+                                    blank=True)
 
     websites = models.ManyToManyField('contacts.Website', related_name='+',
                                       through='contacts.ContactWebsite',
-                                      blank=True, null=True)
+                                      blank=True)
 
     class Meta(AbstractContact.Meta):
         pass
@@ -521,7 +519,7 @@ class Person(AbstractPerson):
 
     organisations = models.ManyToManyField(
         'contacts.Organisation', related_name='people',
-        through='contacts.PersonOrganisation', blank=True, null=True)
+        through='contacts.PersonOrganisation', blank=True)
 
     class Meta(AbstractPerson.Meta):
         verbose_name_plural = 'people'
