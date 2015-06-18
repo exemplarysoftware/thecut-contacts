@@ -50,7 +50,7 @@ class ContactAddressInlineForm(ContactRelatedInlineForm):
 
     postcode = forms.CharField(label='Postcode', max_length=30, required=False)
 
-    country = forms.ChoiceField(label='Country', choices=countries,
+    country = forms.ChoiceField(label='Country', choices=countries.COUNTRIES,
                                 initial=settings.DEFAULT_COUNTRY,
                                 required=False)
 
