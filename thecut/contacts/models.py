@@ -323,10 +323,12 @@ class Contact(AbstractContact):
 @python_2_unicode_compatible
 class ContactAddress(models.Model):
 
-    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    contact = models.ForeignKey('contacts.Contact', related_name='+',
+                                on_delete=models.CASCADE)
 
     address = models.ForeignKey('contacts.Address',
-                                related_name='contact_addresses')
+                                related_name='contact_addresses',
+                                on_delete=models.CASCADE)
 
     order = models.PositiveIntegerField(default=0)
 
@@ -345,9 +347,11 @@ models.signals.post_delete.connect(receivers.delete_related_address,
 @python_2_unicode_compatible
 class ContactEmail(models.Model):
 
-    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    contact = models.ForeignKey('contacts.Contact', related_name='+',
+                                on_delete=models.CASCADE)
 
-    email = models.ForeignKey('contacts.Email', related_name='contact_emails')
+    email = models.ForeignKey('contacts.Email', related_name='contact_emails',
+                              on_delete=models.CASCADE)
 
     order = models.PositiveIntegerField(default=0)
 
@@ -366,11 +370,13 @@ models.signals.post_delete.connect(receivers.delete_related_email,
 @python_2_unicode_compatible
 class ContactInstantMessengerHandle(models.Model):
 
-    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    contact = models.ForeignKey('contacts.Contact', related_name='+',
+                                on_delete=models.CASCADE)
 
     instant_messenger_handle = models.ForeignKey(
         'contacts.InstantMessengerHandle',
-        related_name='contact_instant_messenger_handles')
+        related_name='contact_instant_messenger_handles',
+        on_delete=models.CASCADE)
 
     order = models.PositiveIntegerField(default=0)
 
@@ -391,10 +397,12 @@ models.signals.post_delete.connect(
 @python_2_unicode_compatible
 class ContactNickname(models.Model):
 
-    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    contact = models.ForeignKey('contacts.Contact', related_name='+',
+                                on_delete=models.CASCADE)
 
     nickname = models.ForeignKey('contacts.Nickname',
-                                 related_name='contact_nicknames')
+                                 related_name='contact_nicknames',
+                                 on_delete=models.CASCADE)
 
     order = models.PositiveIntegerField(default=0)
 
@@ -413,9 +421,11 @@ models.signals.post_delete.connect(receivers.delete_related_nickname,
 @python_2_unicode_compatible
 class ContactPhone(models.Model):
 
-    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    contact = models.ForeignKey('contacts.Contact', related_name='+',
+                                on_delete=models.CASCADE)
 
-    phone = models.ForeignKey('contacts.Phone', related_name='contact_phones')
+    phone = models.ForeignKey('contacts.Phone', related_name='contact_phones',
+                              on_delete=models.CASCADE)
 
     order = models.PositiveIntegerField(default=0)
 
@@ -434,10 +444,12 @@ models.signals.post_delete.connect(receivers.delete_related_phone,
 @python_2_unicode_compatible
 class ContactWebsite(models.Model):
 
-    contact = models.ForeignKey('contacts.Contact', related_name='+')
+    contact = models.ForeignKey('contacts.Contact', related_name='+',
+                                on_delete=models.CASCADE)
 
     website = models.ForeignKey('contacts.Website',
-                                related_name='contact_websites')
+                                related_name='contact_websites',
+                                on_delete=models.CASCADE)
 
     order = models.PositiveIntegerField(default=0)
 
@@ -456,10 +468,12 @@ models.signals.post_delete.connect(receivers.delete_related_website,
 @python_2_unicode_compatible
 class PersonOrganisation(models.Model):
 
-    person = models.ForeignKey('contacts.Person', related_name='occupations')
+    person = models.ForeignKey('contacts.Person', related_name='occupations',
+                               on_delete=models.CASCADE)
 
     organisation = models.ForeignKey('contacts.Organisation',
-                                     related_name='positions')
+                                     related_name='positions',
+                                     on_delete=models.CASCADE)
 
     title = models.CharField(max_length=250, blank=True)
 
@@ -515,7 +529,8 @@ class AbstractPerson(Contact):
 class Person(AbstractPerson):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, blank=True,
-                                null=True, related_name='contact')
+                                null=True, related_name='contact',
+                                on_delete=models.SET_NULL)
 
     organisations = models.ManyToManyField(
         'contacts.Organisation', related_name='people',
