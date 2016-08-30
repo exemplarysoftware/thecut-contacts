@@ -27,7 +27,7 @@ class AbstractAddress(models.Model):
     country = CountryField(default=settings.DEFAULT_COUNTRY, db_index=True,
                            blank=True)
 
-    location = models.PointField(null=True, blank=True)
+    location = models.PointField(null=True, blank=True, srid=4326)
 
     objects = managers.AddressManager.for_queryset_class(querysets.QuerySet)()
 
