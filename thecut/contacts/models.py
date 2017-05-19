@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from . import choices, managers, querysets, receivers, settings
+from . import choices, querysets, receivers, settings
 from django.contrib.gis.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django_countries.fields import CountryField
-from model_utils.managers import PassThroughManager
 from taggit.managers import TaggableManager
 from thecut.authorship.models import Authorship
 import re
@@ -29,7 +28,7 @@ class AbstractAddress(models.Model):
 
     location = models.PointField(null=True, blank=True, srid=4326)
 
-    objects = managers.AddressManager.for_queryset_class(querysets.QuerySet)()
+    objects = models.GeoManager()
 
     class Meta(object):
         abstract = True
@@ -58,8 +57,6 @@ class AbstractEmail(models.Model):
 
     value = models.EmailField('Email', max_length=254, db_index=True,
                               blank=True)
-
-    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -91,8 +88,6 @@ class AbstractInstantMessengerHandle(models.Model):
                             choices=choices.INSTANT_MESSENGER_TYPES,
                             blank=True)
 
-    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
-
     class Meta(object):
         abstract = True
         ordering = ['name']
@@ -111,8 +106,6 @@ class InstantMessengerHandle(AbstractInstantMessengerHandle):
 class AbstractNickname(models.Model):
 
     value = models.CharField('Name', max_length=250, db_index=True, blank=True)
-
-    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -139,8 +132,6 @@ class AbstractPhone(models.Model):
     type = models.CharField(max_length=50, db_index=True,
                             choices=choices.PHONE_TYPES, blank=True)
 
-    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
-
     class Meta(object):
         abstract = True
         ordering = ['name']
@@ -166,8 +157,6 @@ class AbstractWebsite(models.Model):
     name = models.CharField(max_length=250, blank=True)
 
     value = models.URLField('URL', max_length=255, db_index=True, blank=True)
-
-    objects = PassThroughManager().for_queryset_class(querysets.QuerySet)()
 
     class Meta(object):
         abstract = True
@@ -201,8 +190,7 @@ class AbstractContactGroup(Authorship):
 
     is_featured = models.BooleanField('featured', default=False)
 
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ActiveFeaturedQuerySet)()
+    objects = querysets.ActiveFeaturedQuerySet.as_manager()
 
     class Meta(Authorship.Meta):
         abstract = True
@@ -237,8 +225,7 @@ class AbstractContact(Authorship):
 
     is_featured = models.BooleanField('featured', default=False)
 
-    objects = PassThroughManager().for_queryset_class(
-        querysets.ActiveFeaturedQuerySet)()
+    objects = querysets.ActiveFeaturedQuerySet.as_manager()
 
     class Meta(Authorship.Meta):
         abstract = True
