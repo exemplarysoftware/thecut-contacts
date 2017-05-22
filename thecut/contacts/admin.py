@@ -11,33 +11,30 @@ from thecut.authorship.admin import AuthorshipMixin
 
 
 def email(obj):
-    try:
-        email = obj.emails.get_first()
-    except ObjectDoesNotExist:
-        return ''
-    else:
+    email = obj.emails.first()
+    if email:
         return '<a href="mailto:{email}" title="{name}">{email}</a>'.format(
             email=email, name=email.name)
+    else:
+        return ''
 email.allow_tags = True
 
 
 def location(obj):
-    try:
-        address = obj.addresses.get_first()
-    except ObjectDoesNotExist:
-        return ''
-    else:
-        country = '{0}'.format(address.country)
+    address = obj.addresses.first()
+    if address:
+        country = '{}'.format(address.country)
         return ', '.join(filter(bool, [address.city, country]))
+    else:
+        return ''
 
 
 def phone(obj):
-    try:
-        phone = obj.phones.get_first()
-    except ObjectDoesNotExist:
-        return ''
+    phone = obj.phones.first()
+    if phone:
+        return '{}'.format(phone)
     else:
-        return '{0}'.format(phone)
+        return ''
 
 
 def preview_image(obj):

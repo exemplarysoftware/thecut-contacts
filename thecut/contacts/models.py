@@ -271,41 +271,6 @@ class Contact(AbstractContact):
     class Meta(AbstractContact.Meta):
         pass
 
-    def get_address(self):
-        """Deprecated - instead use 'addresses.first()'."""
-        warnings.warn('\'get_address\' method is deprecated - use '
-                      '\'addresses.first()\' method.', DeprecationWarning,
-                      stacklevel=2)
-        return self.addresses.get_first()  # Pre Django 1.6 compatibility
-
-    def get_email(self):
-        """Deprecated - instead use 'emails.first()'."""
-        warnings.warn('\'get_email\' method is deprecated - use '
-                      '\'emails.first()\' method.', DeprecationWarning,
-                      stacklevel=2)
-        return self.emails.get_first()  # Pre Django 1.6 compatibility
-
-    def get_nickname(self):
-        """Deprecated - instead use 'nicknames.first()'."""
-        warnings.warn('\'get_nickname\' method is deprecated - use '
-                      '\'nicknames.first()\' method.', DeprecationWarning,
-                      stacklevel=2)
-        return self.nicknames.get_first()  # Pre Django 1.6 compatibility
-
-    def get_phone(self):
-        """Deprecated - instead use 'phones.first()'."""
-        warnings.warn('\'get_phone\' method is deprecated - use '
-                      '\'phones.first()\' method.', DeprecationWarning,
-                      stacklevel=2)
-        return self.phones.get_first()  # Pre Django 1.6 compatibility
-
-    def get_website(self):
-        """Deprecated - instead use 'websites.first()'."""
-        warnings.warn('\'get_website\' method is deprecated - use '
-                      '\'websites.first()\' method.', DeprecationWarning,
-                      stacklevel=2)
-        return self.websites.get_first()  # Pre Django 1.6 compatibility
-
 
 @python_2_unicode_compatible
 class ContactAddress(models.Model):
