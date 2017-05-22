@@ -6,38 +6,35 @@ from .models import (ContactAddress, ContactGroup, ContactEmail,
                      ContactPhone, Organisation, Person, PersonOrganisation,
                      ContactWebsite)
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
+from django.utils.html import format_html
 from thecut.authorship.admin import AuthorshipMixin
 
 
 def email(obj):
-    try:
-        email = obj.emails.get_first()
-    except ObjectDoesNotExist:
-        return ''
-    else:
-        return '<a href="mailto:{email}" title="{name}">{email}</a>'.format(
+    email = obj.emails.first()
+    if email:
+        return format_html(
+            '<a href="mailto:{email}" title="{name}">{email}</a>',
             email=email, name=email.name)
-email.allow_tags = True
+    else:
+        return ''
 
 
 def location(obj):
-    try:
-        address = obj.addresses.get_first()
-    except ObjectDoesNotExist:
-        return ''
-    else:
-        country = '{0}'.format(address.country)
+    address = obj.addresses.first()
+    if address:
+        country = '{}'.format(address.country)
         return ', '.join(filter(bool, [address.city, country]))
+    else:
+        return ''
 
 
 def phone(obj):
-    try:
-        phone = obj.phones.get_first()
-    except ObjectDoesNotExist:
-        return ''
+    phone = obj.phones.first()
+    if phone:
+        return '{}'.format(phone)
     else:
-        return '{0}'.format(phone)
+        return ''
 
 
 def preview_image(obj):
@@ -53,11 +50,9 @@ def preview_image(obj):
             except:
                 pass
             else:
-                html = '<img src="{0}" alt="{1}" />'.format(thumb.url, obj)
+                html = format_html('<img src="{}" alt="{}" />', thumb.url, obj)
     return html
-
 preview_image.short_description = 'Image'
-preview_image.allow_tags = True
 
 
 class ContactAddressInline(admin.StackedInline):
@@ -157,6 +152,8 @@ class PersonOrganisationInline(admin.TabularInline):
 
     extra = 0
 
+    fields = ['organisation', 'title', 'department']
+
     model = PersonOrganisation
 
     verbose_name = 'Organisation'
@@ -167,6 +164,8 @@ class PersonOrganisationInline(admin.TabularInline):
 class OrganisationPersonInline(admin.TabularInline):
 
     extra = 0
+
+    fields = ['person', 'title', 'department']
 
     model = PersonOrganisation
 
