@@ -54,13 +54,13 @@ class ContactAddressInlineForm(ContactRelatedInlineForm):
                                 initial=settings.DEFAULT_COUNTRY,
                                 required=False)
 
-    _related_fields = ('name', 'street', 'city', 'state', 'postcode',
-                       'country')
+    _related_fields = ['name', 'street', 'city', 'state', 'postcode',
+                       'country']
     _related_name = 'address'
     _related_class = Address
 
     class Meta(object):
-        exclude = ('address',)
+        exclude = ['address']
         model = ContactAddress
 
 
@@ -70,12 +70,12 @@ class ContactEmailInlineForm(ContactRelatedInlineForm):
 
     value = forms.EmailField(label='Email', max_length=75)
 
-    _related_fields = ('name', 'value')
+    _related_fields = ['name', 'value']
     _related_name = 'email'
     _related_class = Email
 
     class Meta(object):
-        exclude = ('email',)
+        exclude = ['email']
         model = ContactEmail
 
 
@@ -89,12 +89,12 @@ class ContactInstantMessengerHandleInlineForm(ContactRelatedInlineForm):
         label='Type', choices=[('', '')]+choices.INSTANT_MESSENGER_TYPES,
         required=False)
 
-    _related_fields = ('name', 'value', 'type')
+    _related_fields = ['name', 'value', 'type']
     _related_name = 'instant_messenger_handle'
     _related_class = InstantMessengerHandle
 
     class Meta(object):
-        exclude = ('instant_messenger_handle',)
+        exclude = ['instant_messenger_handle']
         model = ContactInstantMessengerHandle
 
 
@@ -102,12 +102,12 @@ class ContactNicknameInlineForm(ContactRelatedInlineForm):
 
     value = forms.CharField(label='Name', max_length=75)
 
-    _related_fields = ('value',)
+    _related_fields = ['value']
     _related_name = 'nickname'
     _related_class = Nickname
 
     class Meta(object):
-        exclude = ('nickname',)
+        exclude = ['nickname']
         model = ContactNickname
 
 
@@ -121,12 +121,12 @@ class ContactPhoneInlineForm(ContactRelatedInlineForm):
                              choices=[('', '')]+choices.PHONE_TYPES,
                              required=False)
 
-    _related_fields = ('name', 'value', 'type')
+    _related_fields = ['name', 'value', 'type']
     _related_name = 'phone'
     _related_class = Phone
 
     class Meta(object):
-        exclude = ('phone',)
+        exclude = ['phone']
         model = ContactPhone
 
 
@@ -136,10 +136,10 @@ class ContactWebsiteInlineForm(ContactRelatedInlineForm):
 
     value = forms.URLField(label='URL', max_length=255)
 
-    _related_fields = ('name', 'value')
+    _related_fields = ['name', 'value']
     _related_name = 'website'
     _related_class = Website
 
     class Meta(object):
-        exclude = ('website',)
+        exclude = ['website']
         model = ContactWebsite
