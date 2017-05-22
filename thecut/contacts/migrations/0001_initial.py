@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
-from django.db import models, migrations
-import django_countries.fields
-import django.contrib.gis.db.models.fields
 from django.conf import settings
+from django.db import models, migrations
+import django.contrib.gis.db.models.fields
+import django.db.models.deletion
+import django_countries.fields
 import taggit.managers
 
 
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('order', models.PositiveIntegerField(default=0)),
-                ('address', models.ForeignKey(related_name='contact_addresses', to='contacts.Address')),
+                ('address', models.ForeignKey(related_name='contact_addresses', on_delete=django.db.models.deletion.CASCADE, to='contacts.Address')),
             ],
             options={
                 'ordering': ['order'],
@@ -86,9 +86,9 @@ class Migration(migrations.Migration):
                 ('notes', models.TextField(blank=True)),
                 ('is_enabled', models.BooleanField(default=True, verbose_name='enabled')),
                 ('is_featured', models.BooleanField(default=False, verbose_name='featured')),
-                ('created_by', models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL)),
+                ('created_by', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, editable=False, to=settings.AUTH_USER_MODEL)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
-                ('updated_by', models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL)),
+                ('updated_by', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, editable=False, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'ordering': ['name', '-created_at'],
@@ -183,7 +183,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Organisation',
             fields=[
-                ('contact_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contacts.Contact')),
+                ('contact_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contacts.Contact', on_delete=django.db.models.deletion.CASCADE)),
                 ('name', models.CharField(db_index=True, max_length=250, blank=True)),
                 ('abn', models.CharField(db_index=True, max_length=11, verbose_name='ABN', blank=True)),
             ],
@@ -197,7 +197,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Person',
             fields=[
-                ('contact_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contacts.Contact')),
+                ('contact_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contacts.Contact', on_delete=django.db.models.deletion.CASCADE)),
                 ('title', models.CharField(max_length=250, blank=True)),
                 ('short_name', models.CharField(db_index=True, max_length=250, blank=True)),
                 ('long_name', models.CharField(db_index=True, max_length=250, blank=True)),
@@ -220,8 +220,8 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=250, blank=True)),
                 ('department', models.CharField(max_length=250, blank=True)),
                 ('order', models.PositiveIntegerField(default=0)),
-                ('organisation', models.ForeignKey(related_name='positions', to='contacts.Organisation')),
-                ('person', models.ForeignKey(related_name='occupations', to='contacts.Person')),
+                ('organisation', models.ForeignKey(related_name='positions', on_delete=django.db.models.deletion.CASCADE, to='contacts.Organisation')),
+                ('person', models.ForeignKey(related_name='occupations', on_delete=django.db.models.deletion.CASCADE, to='contacts.Person')),
             ],
             options={
                 'verbose_name': 'employment',
@@ -265,19 +265,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='person',
             name='user',
-            field=models.OneToOneField(related_name='contact', null=True, blank=True, to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(related_name='contact', null=True, blank=True, to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contactwebsite',
             name='contact',
-            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, to='contacts.Contact'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contactwebsite',
             name='website',
-            field=models.ForeignKey(related_name='contact_websites', to='contacts.Website'),
+            field=models.ForeignKey(related_name='contact_websites', on_delete=django.db.models.deletion.CASCADE, to='contacts.Website'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -287,13 +287,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contactphone',
             name='contact',
-            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, to='contacts.Contact'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contactphone',
             name='phone',
-            field=models.ForeignKey(related_name='contact_phones', to='contacts.Phone'),
+            field=models.ForeignKey(related_name='contact_phones', on_delete=django.db.models.deletion.CASCADE, to='contacts.Phone'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -303,13 +303,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contactnickname',
             name='contact',
-            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, to='contacts.Contact'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contactnickname',
             name='nickname',
-            field=models.ForeignKey(related_name='contact_nicknames', to='contacts.Nickname'),
+            field=models.ForeignKey(related_name='contact_nicknames', on_delete=django.db.models.deletion.CASCADE, to='contacts.Nickname'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -319,13 +319,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contactinstantmessengerhandle',
             name='contact',
-            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, to='contacts.Contact'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contactinstantmessengerhandle',
             name='instant_messenger_handle',
-            field=models.ForeignKey(related_name='contact_instant_messenger_handles', to='contacts.InstantMessengerHandle'),
+            field=models.ForeignKey(related_name='contact_instant_messenger_handles', on_delete=django.db.models.deletion.CASCADE, to='contacts.InstantMessengerHandle'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -335,13 +335,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contactemail',
             name='contact',
-            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, to='contacts.Contact'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contactemail',
             name='email',
-            field=models.ForeignKey(related_name='contact_emails', to='contacts.Email'),
+            field=models.ForeignKey(related_name='contact_emails', on_delete=django.db.models.deletion.CASCADE, to='contacts.Email'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -351,7 +351,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contactaddress',
             name='contact',
-            field=models.ForeignKey(related_name='+', to='contacts.Contact'),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, to='contacts.Contact'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -367,7 +367,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contact',
             name='created_by',
-            field=models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, editable=False, to=settings.AUTH_USER_MODEL),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -409,7 +409,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contact',
             name='updated_by',
-            field=models.ForeignKey(related_name='+', editable=False, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.CASCADE, editable=False, to=settings.AUTH_USER_MODEL),
             preserve_default=True,
         ),
         migrations.AddField(
