@@ -6,17 +6,18 @@ from .models import (ContactAddress, ContactGroup, ContactEmail,
                      ContactPhone, Organisation, Person, PersonOrganisation,
                      ContactWebsite)
 from django.contrib import admin
+from django.utils.html import format_html
 from thecut.authorship.admin import AuthorshipMixin
 
 
 def email(obj):
     email = obj.emails.first()
     if email:
-        return '<a href="mailto:{email}" title="{name}">{email}</a>'.format(
+        return format_html(
+            '<a href="mailto:{email}" title="{name}">{email}</a>',
             email=email, name=email.name)
     else:
         return ''
-email.allow_tags = True
 
 
 def location(obj):
@@ -49,11 +50,9 @@ def preview_image(obj):
             except:
                 pass
             else:
-                html = '<img src="{0}" alt="{1}" />'.format(thumb.url, obj)
+                html = format_html('<img src="{}" alt="{}" />', thumb.url, obj)
     return html
-
 preview_image.short_description = 'Image'
-preview_image.allow_tags = True
 
 
 class ContactAddressInline(admin.StackedInline):
