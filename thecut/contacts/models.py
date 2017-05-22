@@ -7,7 +7,6 @@ from django_countries.fields import CountryField
 from taggit.managers import TaggableManager
 from thecut.authorship.models import Authorship
 import re
-import warnings
 
 
 @python_2_unicode_compatible

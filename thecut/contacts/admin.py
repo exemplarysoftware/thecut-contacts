@@ -6,7 +6,6 @@ from .models import (ContactAddress, ContactGroup, ContactEmail,
                      ContactPhone, Organisation, Person, PersonOrganisation,
                      ContactWebsite)
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from thecut.authorship.admin import AuthorshipMixin
 
 

@@ -87,7 +87,7 @@ class ContactInstantMessengerHandleInlineForm(ContactRelatedInlineForm):
     value = forms.CharField(label='ID', max_length=75)
 
     type = forms.ChoiceField(
-        label='Type', choices=[('', '')]+choices.INSTANT_MESSENGER_TYPES,
+        label='Type', choices=[('', '')] + choices.INSTANT_MESSENGER_TYPES,
         required=False)
 
     _related_fields = ['name', 'value', 'type']
@@ -119,7 +119,7 @@ class ContactPhoneInlineForm(ContactRelatedInlineForm):
     value = forms.CharField(label='Number', max_length=75)
 
     type = forms.ChoiceField(label='Type',
-                             choices=[('', '')]+choices.PHONE_TYPES,
+                             choices=[('', '')] + choices.PHONE_TYPES,
                              required=False)
 
     _related_fields = ['name', 'value', 'type']
