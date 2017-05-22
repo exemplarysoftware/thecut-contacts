@@ -153,6 +153,8 @@ class PersonOrganisationInline(admin.TabularInline):
 
     extra = 0
 
+    fields = ['organisation', 'title', 'department']
+
     model = PersonOrganisation
 
     verbose_name = 'Organisation'
@@ -163,6 +165,8 @@ class PersonOrganisationInline(admin.TabularInline):
 class OrganisationPersonInline(admin.TabularInline):
 
     extra = 0
+
+    fields = ['person', 'title', 'department']
 
     model = PersonOrganisation
 
