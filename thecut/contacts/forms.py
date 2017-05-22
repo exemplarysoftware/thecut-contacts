@@ -31,8 +31,9 @@ class ContactRelatedInlineForm(forms.ModelForm):
         except self._related_class.DoesNotExist:
             related_instance = self._related_class()
 
-        related_obj = forms.models.save_instance(self, related_instance,
-                                                 fields=self._related_fields)
+        related_obj = forms.models.construct_instance(
+            form=self, instance=related_instance, fields=self._related_fields)
+        related_obj.save()
         setattr(self.instance, self._related_name, related_obj)
 
         return super(ContactRelatedInlineForm, self).save(*args, **kwargs)
