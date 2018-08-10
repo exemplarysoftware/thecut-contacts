@@ -11,5 +11,5 @@ setup(
     version=get_git_version(),
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['django-countries>=4.5', 'django-taggit>=0.22.1'],
+    install_requires=['django-countries>=4.5', 'django-taggit<=0.22.2'],
 )
