@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 from . import choices, querysets, receivers, settings
 from django.contrib.gis.db import models
+from django.db.models import Manager as GeoManager
 from django.utils.encoding import python_2_unicode_compatible
 from django_countries.fields import CountryField
 from taggit.managers import TaggableManager
@@ -27,7 +28,7 @@ class AbstractAddress(models.Model):
 
     location = models.PointField(null=True, blank=True, srid=4326)
 
-    objects = models.GeoManager()
+    objects = GeoManager()
 
     class Meta(object):
         abstract = True
